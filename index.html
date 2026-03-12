@@ -1,0 +1,2510 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Viver em Equilíbrio</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#C9A96E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Equilíbrio">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0C0B09;--sur:#161412;--sur2:#1E1B17;--sur3:#252117;
+  --bor:rgba(255,255,255,0.06);--bor2:rgba(255,255,255,0.11);
+  --txt:#EDE8DF;--mut:rgba(237,232,223,0.42);--faint:rgba(237,232,223,0.07);
+  --gold:#C9A96E;--gold-bg:rgba(201,169,110,0.13);
+  --mente:#7BAFD4;--mente-bg:rgba(123,175,212,0.09);--mente-gl:rgba(123,175,212,0.22);
+  --emoc:#E8956D;--emoc-bg:rgba(232,149,109,0.09);--emoc-gl:rgba(232,149,109,0.22);
+  --espi:#B09FD8;--espi-bg:rgba(176,159,216,0.09);--espi-gl:rgba(176,159,216,0.22);
+  --fisi:#6BBF8E;--fisi-bg:rgba(107,191,142,0.09);--fisi-gl:rgba(107,191,142,0.22);
+}
+html,body{height:100%;background:#060504;font-family:'Syne',sans-serif;color:var(--txt)}
+@media(min-width:600px){body{display:flex;align-items:center;justify-content:center;min-height:100vh}}
+
+.shell{width:390px;height:844px;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;position:relative}
+@media(min-width:600px){.shell{border-radius:46px;box-shadow:0 0 0 1px rgba(255,255,255,0.07),0 80px 160px rgba(0,0,0,0.85),inset 0 0 0 1px rgba(255,255,255,0.03)}}
+
+/* STATUS */
+.sb{padding:14px 28px 0;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;color:var(--mut);flex-shrink:0}
+.sb-r{display:flex;align-items:center;gap:6px}
+.batt{width:22px;height:11px;border:1.5px solid var(--mut);border-radius:2px;display:flex;align-items:center;position:relative}
+.batt::after{content:'';position:absolute;right:-4px;top:50%;transform:translateY(-50%);width:2px;height:5px;background:var(--mut);border-radius:0 1px 1px 0}
+.batt-f{width:68%;height:5px;background:var(--mut);border-radius:1px;margin:0 1px}
+
+/* SCREENS */
+.screen{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0}
+.screen.active{display:flex;height:100%}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding-bottom:88px}
+.scroll::-webkit-scrollbar{display:none}
+
+/* BOTTOM NAV */
+.bnav{position:absolute;bottom:0;left:0;right:0;padding:10px 16px 24px;background:linear-gradient(to top,var(--bg) 60%,transparent);display:flex;justify-content:space-around;z-index:50;flex-shrink:0}
+.ni{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:7px 12px;border-radius:14px;transition:all .2s}
+.ni.active{background:var(--sur)}
+.ni-ic{font-size:19px}
+.ni-lb{font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
+.ni.active .ni-lb{color:var(--txt)}
+.ni-badge{width:6px;height:6px;border-radius:50%;background:var(--emoc);position:absolute;top:-1px;right:-1px}
+.ni-wr{position:relative}
+
+/* SHARED */
+.ph{padding:20px 24px 0;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.ph-sm{font-size:10px;color:var(--mut);letter-spacing:.07em;text-transform:uppercase;margin-bottom:3px}
+.ph-tt{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;letter-spacing:-.02em}
+.ph-tt em{font-style:italic;color:var(--gold)}
+.back{width:36px;height:36px;border-radius:12px;background:var(--sur);border:1px solid var(--bor);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--mut);transition:all .2s;flex-shrink:0}
+.back:hover{background:var(--sur2);color:var(--txt)}
+.sl{padding:18px 24px 10px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);display:flex;align-items:center;justify-content:space-between}
+.sl-a{font-size:10px;color:var(--gold);cursor:pointer}
+.card{background:var(--sur);border:1px solid var(--bor);border-radius:20px;padding:18px;transition:all .25s;cursor:pointer}
+.card:hover{transform:translateY(-2px);border-color:var(--bor2)}
+.pill{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:3px 9px;border-radius:20px;display:inline-block}
+.gold-btn{background:var(--gold);color:#1a1000;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:10px 20px;border-radius:24px;cursor:pointer;transition:opacity .2s;border:none;display:inline-block}
+.gold-btn:hover{opacity:.85}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulseGlow{0%,100%{opacity:1}50%{opacity:.4}}
+.screen.active .scroll{animation:fadeIn .3s ease both}
+
+/* ── HOME ── */
+.avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--mente),var(--espi));display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;box-shadow:0 0 0 2px rgba(255,255,255,0.08)}
+.sc-card{margin:16px 24px 0;background:var(--sur);border:1px solid var(--bor2);border-radius:24px;padding:22px 20px 18px;position:relative;overflow:hidden}
+.sc-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 0%,rgba(201,169,110,0.06) 0%,transparent 65%);pointer-events:none}
+.sc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.sc-lbl{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:4px}
+.sc-num{font-family:'Playfair Display',serif;font-size:52px;font-weight:700;line-height:1;letter-spacing:-.03em}
+.sc-num span{font-size:22px;font-weight:400;color:var(--mut)}
+.sc-trend{font-size:11px;color:var(--fisi);background:rgba(107,191,142,0.12);border:1px solid rgba(107,191,142,0.22);padding:3px 9px;border-radius:20px;font-weight:600;margin-top:6px;display:inline-block}
+.ring-wr{position:relative;width:72px;height:72px;flex-shrink:0}
+.ring-bg{fill:none;stroke:rgba(255,255,255,0.06);stroke-width:6}
+.ring-fg{fill:none;stroke:var(--gold);stroke-width:6;stroke-linecap:round;stroke-dasharray:175;stroke-dashoffset:35;transform:rotate(-90deg);transform-origin:50% 50%;filter:drop-shadow(0 0 6px rgba(201,169,110,0.5))}
+.ring-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--gold)}
+.chart-days{display:flex;align-items:flex-end;gap:5px;height:52px;padding-top:16px}
+.cd{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.cb{width:100%;border-radius:4px 4px 0 0;background:linear-gradient(to top,rgba(201,169,110,0.65),rgba(201,169,110,0.25));min-height:4px}
+.cl{font-size:8px;color:var(--mut);font-weight:500}
+.cd.tod .cb{background:linear-gradient(to top,var(--gold),rgba(201,169,110,0.55));box-shadow:0 0 8px rgba(201,169,110,0.35)}
+.cd.tod .cl{color:var(--gold);font-weight:700}
+.pr{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 24px}
+.pc{background:var(--sur);border:1px solid var(--bor);border-radius:20px;padding:16px 14px 14px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.pc::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;border-radius:20px}
+.pc:hover{transform:translateY(-3px)}
+.pc:hover::before{opacity:1}
+.pm::before{background:var(--mente-bg)}.pm:hover{border-color:rgba(123,175,212,.3);box-shadow:0 8px 30px var(--mente-gl)}
+.pe::before{background:var(--emoc-bg)}.pe:hover{border-color:rgba(232,149,109,.3);box-shadow:0 8px 30px var(--emoc-gl)}
+.psp::before{background:var(--espi-bg)}.psp:hover{border-color:rgba(176,159,216,.3);box-shadow:0 8px 30px var(--espi-gl)}
+.pf::before{background:var(--fisi-bg)}.pf:hover{border-color:rgba(107,191,142,.3);box-shadow:0 8px 30px var(--fisi-gl)}
+.pt{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;position:relative;z-index:1}
+.pn{font-size:11px;font-weight:700;margin-bottom:2px;position:relative;z-index:1}
+.ps2{font-size:9.5px;color:var(--mut);margin-bottom:10px;position:relative;z-index:1}
+.sp{position:relative;height:38px;z-index:1}
+.sp svg{width:100%;height:100%;overflow:visible}
+.pr2{display:flex;justify-content:space-between;align-items:flex-end;margin-top:6px;position:relative;z-index:1}
+.pv{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;line-height:1;letter-spacing:-.02em}
+.pm .pv{color:var(--mente)}.pe .pv{color:var(--emoc)}.psp .pv{color:var(--espi)}.pf .pv{color:var(--fisi)}
+.pm .pb{color:var(--mente);background:rgba(123,175,212,.12);border:1px solid rgba(123,175,212,.2)}
+.pe .pb{color:var(--emoc);background:rgba(232,149,109,.12);border:1px solid rgba(232,149,109,.2)}
+.psp .pb{color:var(--espi);background:rgba(176,159,216,.12);border:1px solid rgba(176,159,216,.2)}
+.pf .pb{color:var(--fisi);background:rgba(107,191,142,.12);border:1px solid rgba(107,191,142,.2)}
+.pd{font-size:9px;font-weight:600}.up{color:var(--fisi)}.dn{color:var(--emoc)}
+.pp{font-size:10px;color:var(--mut)}
+.sh-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 24px}
+.sh{background:var(--sur);border:1px solid var(--bor);border-radius:16px;padding:14px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.sh:hover{background:var(--sur2);border-color:var(--bor2);transform:translateY(-2px)}
+.sh.sha{border-color:rgba(201,169,110,.22);background:rgba(201,169,110,.09)}
+.sh-ic{font-size:20px;transition:transform .3s}
+.sh:hover .sh-ic{transform:scale(1.2) rotate(-5deg)}
+.sh-lb{font-size:9px;font-weight:600;text-align:center;color:var(--mut);letter-spacing:.04em;text-transform:uppercase;line-height:1.3}
+.sh.sha .sh-lb{color:var(--gold)}
+.sh::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(201,169,110,0.15) 0%,transparent 70%);opacity:0;transition:opacity .4s}
+.sh:active::after{opacity:1}
+
+.ci-s{margin:0 24px;background:var(--sur);border:1px solid var(--bor);border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.ci-i{flex:1}.ci-t{font-size:13px;font-weight:600;margin-bottom:2px}.ci-i .ci-d{font-size:10px;color:var(--mut)}
+.sess{margin:0 24px;background:var(--sur2);border:1px solid var(--bor2);border-radius:20px;padding:18px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .25s}
+.sess:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,0.4)}
+.si{width:48px;height:48px;border-radius:15px;background:linear-gradient(135deg,rgba(176,159,216,.25),rgba(123,175,212,.15));display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.si2{flex:1}.ssup{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--mut);margin-bottom:3px;font-weight:600}
+.stt{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;line-height:1.25;margin-bottom:4px}
+.sm{font-size:10px;color:var(--mut)}
+.sc2{width:34px;height:34px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;color:#000;font-weight:700}
+.ins{margin:0 24px;background:var(--sur);border:1px solid var(--bor);border-radius:20px;padding:18px;position:relative;overflow:hidden;cursor:pointer}
+.ins::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(176,159,216,.12) 0%,transparent 70%)}
+.ins-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.ins-dot{width:6px;height:6px;border-radius:50%;background:var(--espi);animation:pulseGlow 2s infinite}
+.ins-txt{font-family:'Playfair Display',serif;font-size:14px;font-style:italic;line-height:1.6;color:rgba(237,232,223,.85);margin-bottom:12px}
+.ins-act{font-size:10px;color:var(--espi);font-weight:600;letter-spacing:.05em}
+.stks{display:flex;gap:10px;padding:0 24px}
+.sk{flex:1;background:var(--sur);border:1px solid var(--bor);border-radius:16px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:all .25s}
+.sk:hover{border-color:var(--bor2)}
+.skn{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;line-height:1}
+.skl{font-size:8.5px;color:var(--mut);text-align:center;letter-spacing:.04em;text-transform:uppercase}
+.rc{margin:0 24px;background:var(--sur);border:1px solid var(--bor);border-radius:20px;padding:18px 18px 14px}
+.rh{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.rt{font-size:12px;font-weight:700}
+.rleg{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;margin-top:12px}
+.lg{display:flex;align-items:center;gap:6px}
+.ld{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.ln{font-size:10px;color:var(--mut)}
+.lv{font-size:10px;font-weight:700;margin-left:auto}
+
+/* ── MISSÕES ── */
+.tabs{display:flex;gap:8px;padding:14px 24px 0;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:8px 16px;border-radius:24px;font-size:11px;font-weight:700;letter-spacing:.04em;cursor:pointer;border:1px solid var(--bor);background:var(--sur);color:var(--mut);transition:all .25s}
+.tab.at{color:#0C0B09}
+.tab-m.at{background:var(--mente);border-color:var(--mente);box-shadow:0 4px 16px var(--mente-gl)}
+.tab-e.at{background:var(--emoc);border-color:var(--emoc);box-shadow:0 4px 16px var(--emoc-gl)}
+.tab-s.at{background:var(--espi);border-color:var(--espi);box-shadow:0 4px 16px var(--espi-gl)}
+.tab-f.at{background:var(--fisi);border-color:var(--fisi);box-shadow:0 4px 16px var(--fisi-gl)}
+.mp{display:none;flex-direction:column;gap:12px}
+.mp.active{display:flex;animation:slideUp .25s ease both}
+.mc{background:var(--sur);border:1px solid var(--bor);border-radius:18px;padding:14px;display:flex;gap:10px;cursor:default;transition:all .25s;position:relative;overflow:hidden;align-items:flex-start}
+.mc.done{opacity:.55}.mc.done .mct{text-decoration:line-through}
+.mck{width:28px;height:28px;border-radius:50%;border:2px solid var(--bor2);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;transition:all .3s;margin-top:2px;font-size:12px}
+.mc.done .mck{border-color:transparent}
+.p-m .mc.done .mck{background:var(--mente)}.p-e .mc.done .mck{background:var(--emoc)}
+.p-s .mc.done .mck{background:var(--espi)}.p-f .mc.done .mck{background:var(--fisi)}
+.mb{flex:1;min-width:0}
+.mtg{display:flex;gap:5px;margin-bottom:6px;flex-wrap:wrap}
+.mtg span{font-size:8.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;border-radius:20px}
+.tm{color:var(--mente);background:rgba(123,175,212,.12);border:1px solid rgba(123,175,212,.22)}
+.te{color:var(--emoc);background:rgba(232,149,109,.12);border:1px solid rgba(232,149,109,.22)}
+.ts{color:var(--espi);background:rgba(176,159,216,.12);border:1px solid rgba(176,159,216,.22)}
+.tf{color:var(--fisi);background:rgba(107,191,142,.12);border:1px solid rgba(107,191,142,.22)}
+.td{color:var(--mut);background:var(--faint);border:1px solid var(--bor)}
+.tw{color:#C9A96E;background:rgba(201,169,110,.1);border:1px solid rgba(201,169,110,.2)}
+.tch{color:#E87C6D;background:rgba(232,124,109,.1);border:1px solid rgba(232,124,109,.2)}
+.mct{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;line-height:1.3;margin-bottom:4px}
+.mcd{font-size:11px;color:var(--mut);line-height:1.55;margin-bottom:8px}
+.mcf{display:flex;justify-content:space-between;align-items:center}
+.mxp{font-size:10px;font-weight:600;color:var(--mut)}
+.mdu{font-size:10px;color:var(--mut)}
+.fc{background:var(--sur2);border:1px solid var(--bor2);border-radius:20px;padding:20px;cursor:pointer;transition:all .25s}
+.fc:hover{transform:translateY(-2px)}
+.ft{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.fi{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.fi-m{background:rgba(123,175,212,.15)}.fi-e{background:rgba(232,149,109,.15)}
+.fi-s{background:rgba(176,159,216,.15)}.fi-f{background:rgba(107,191,142,.15)}
+.ftt{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;margin-bottom:6px;line-height:1.25}
+.fd{font-size:11.5px;color:var(--mut);line-height:1.6;margin-bottom:14px}
+.fp{background:var(--bor);height:4px;border-radius:10px;overflow:hidden;margin-bottom:6px}
+.ff{height:100%;border-radius:10px}
+.ff-m{background:linear-gradient(90deg,var(--mente),#A8D0EC)}
+.ff-e{background:linear-gradient(90deg,var(--emoc),#F0B08E)}
+.ff-s{background:linear-gradient(90deg,var(--espi),#C8BAEB)}
+.ff-f{background:linear-gradient(90deg,var(--fisi),#90D4A8)}
+.fl{display:flex;justify-content:space-between;font-size:10px;color:var(--mut)}
+.div-m{font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);padding:6px 0 2px;display:flex;align-items:center;gap:10px}
+.div-m::after{content:'';flex:1;height:1px;background:var(--bor)}
+.stk-ban{background:linear-gradient(135deg,rgba(201,169,110,.1),rgba(201,169,110,.04));border:1px solid rgba(201,169,110,.2);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.sb-v{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#C9A96E}
+
+/* ── PRÁTICAS ── */
+#s-rank{flex-direction:column;overflow:hidden}
+@keyframes pratEnter{from{opacity:0;transform:translateX(-24px) scale(0.96)}to{opacity:1;transform:translateX(0) scale(1)}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.prat-list{display:flex;flex-direction:column;gap:12px;padding:0 24px}
+.prat{background:var(--sur);border:1px solid var(--bor);border-radius:20px;padding:18px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.prat.anim-in{animation:pratEnter .45s cubic-bezier(0.22,1,0.36,1) both}
+.prat:nth-child(1){animation-delay:.05s}
+.prat:nth-child(2){animation-delay:.10s}
+.prat:nth-child(3){animation-delay:.15s}
+.prat:nth-child(4){animation-delay:.20s}
+.prat:nth-child(5){animation-delay:.25s}
+.prat:nth-child(6){animation-delay:.30s}
+.prat::after{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,0.04) 50%,transparent 70%);background-size:200% 100%;opacity:0;transition:opacity .3s}
+.prat:hover::after{opacity:1;animation:shimmer 0.8s ease}
+.prat:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.35)}
+.pi{width:54px;height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;transition:transform .3s}
+.prat:hover .pi{transform:scale(1.12) rotate(-4deg)}
+.pinfo{flex:1}
+.ptt{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;margin-bottom:3px}
+.pm2{font-size:10px;color:var(--mut);margin-bottom:7px}
+.pbar{height:3px;background:var(--bor);border-radius:10px;overflow:hidden}
+.pf2{height:100%;border-radius:10px}
+.pcta{font-size:11px;font-weight:700;padding:8px 14px;border-radius:20px;cursor:pointer;transition:all .2s;flex-shrink:0;border:1px solid transparent}
+.pcta:hover{filter:brightness(1.2)}
+
+/* Practice modal */
+.pmodal{position:absolute;inset:0;background:rgba(12,11,9,0.92);z-index:200;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .3s}
+.pmodal.open{opacity:1;pointer-events:all}
+.pmbox{background:var(--sur);border:1px solid var(--bor2);border-radius:28px 28px 0 0;width:100%;padding:28px 24px 48px;transform:translateY(100%);transition:transform .4s cubic-bezier(0.22,1,0.36,1)}
+.pmodal.open .pmbox{transform:translateY(0)}
+.pmh{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.pmtitle{font-family:'Playfair Display',serif;font-size:20px;font-weight:700}
+.pmclose{width:32px;height:32px;border-radius:50%;background:var(--sur2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--mut)}
+.pm-steps{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
+.pm-step{background:var(--sur2);border:1px solid var(--bor);border-radius:14px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px}
+.pm-sn{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+.pm-st{font-size:13px;line-height:1.55;color:rgba(237,232,223,.88)}
+.pm-timer{background:var(--gold-bg);border:1px solid rgba(201,169,110,.25);border-radius:16px;padding:14px;display:flex;align-items:center;justify-content:center;gap:12px;cursor:pointer;margin-bottom:8px;transition:all .25s}
+.pm-timer:hover{background:rgba(201,169,110,.2)}
+.pt-ic{font-size:20px}
+.pt-txt{font-size:14px;font-weight:700;color:var(--gold)}
+
+/* ── MAPA ── */
+.mapa-ring{display:flex;justify-content:center;padding:20px 0 10px}
+.mapa-rw{position:relative;width:140px;height:140px}
+.mapa-rt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.mapa-rn{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:var(--gold);line-height:1}
+.mapa-rl{font-size:9px;color:var(--mut);letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+.hbars{margin:0 24px;display:flex;flex-direction:column;gap:14px}
+.hbr{display:flex;align-items:center;gap:12px}
+.hbi{font-size:18px;width:28px;text-align:center;flex-shrink:0}
+.hbd{flex:1}
+.hbt{display:flex;justify-content:space-between;font-size:11px;font-weight:600;margin-bottom:5px}
+.hbtr{height:8px;background:var(--bor);border-radius:10px;overflow:hidden}
+.hbf{height:100%;border-radius:10px}
+.hm{background:linear-gradient(90deg,var(--mente),#A8D0EC)}
+.he{background:linear-gradient(90deg,var(--emoc),#F0B08E)}
+.hs{background:linear-gradient(90deg,var(--espi),#C8BAEB)}
+.hf{background:linear-gradient(90deg,var(--fisi),#90D4A8)}
+.hbp{font-size:10px;font-weight:700}
+
+/* ── ROTINAS ── */
+.rot-tabs{display:flex;gap:8px;padding:14px 24px 0;flex-shrink:0}
+.rtt{flex:1;padding:10px 8px;border-radius:16px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;text-align:center;cursor:pointer;border:1px solid var(--bor);background:var(--sur);color:var(--mut);transition:all .25s}
+.rtt.ar{background:var(--gold);border-color:var(--gold);color:#1a1000}
+.rot-card{background:var(--sur);border:1px solid var(--bor);border-radius:18px;padding:16px;display:flex;gap:12px;align-items:flex-start;cursor:pointer;transition:all .25s}
+.rot-card:hover{border-color:var(--bor2);transform:translateY(-2px)}
+.rtb{background:var(--sur2);border:1px solid var(--bor);border-radius:10px;padding:6px 10px;text-align:center;flex-shrink:0;min-width:48px}
+.rth{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;line-height:1;color:var(--gold)}
+.rtam{font-size:8px;color:var(--mut);font-weight:600;letter-spacing:.05em}
+.rti{flex:1}
+.rtt2{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;margin-bottom:3px}
+.rtd{font-size:10.5px;color:var(--mut);line-height:1.5;margin-bottom:8px}
+.rck{width:26px;height:26px;border-radius:50%;border:2px solid var(--bor2);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;font-size:12px;transition:all .25s;color:transparent;user-select:none}
+.rck.dk{background:var(--gold);border-color:var(--gold);color:#000}
+.rot-add-btn{width:100%;padding:12px;background:var(--sur);border:1px dashed var(--bor2);border-radius:16px;color:var(--mut);font-family:Syne,sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;letter-spacing:.03em;margin-top:4px}
+.rot-add-btn:active{border-color:var(--gold);color:var(--gold)}
+.rot-status{display:flex;gap:6px;margin-top:8px}
+.rot-status button{flex:1;padding:7px 4px;border-radius:10px;border:1px solid;font-family:Syne,sans-serif;font-size:10px;font-weight:700;cursor:pointer;transition:all .2s}
+
+/* ── DIÁRIO ── */
+.diary-list{display:flex;flex-direction:column;gap:10px;padding:0 24px}
+.de{background:var(--sur);border:1px solid var(--bor);border-radius:18px;padding:18px;cursor:pointer;transition:all .25s}
+.de:hover{border-color:var(--bor2);transform:translateY(-2px)}
+.de-dt{font-size:9px;color:var(--mut);letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.de-tt{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;margin-bottom:6px;line-height:1.3}
+.de-pv{font-size:11.5px;color:var(--mut);line-height:1.6;margin-bottom:10px}
+.de-new{margin:0 24px;background:var(--sur2);border:2px dashed rgba(201,169,110,.3);border-radius:18px;padding:16px;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;transition:all .25s}
+.de-new:hover{border-color:rgba(201,169,110,.6);background:rgba(201,169,110,.05)}
+
+/* Diary modal */
+.diary-modal{position:absolute;inset:0;background:var(--bg);z-index:200;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .4s cubic-bezier(0.22,1,0.36,1)}
+.diary-modal.open{transform:translateY(0)}
+.dm-head{padding:54px 24px 16px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.dm-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700}
+.dm-close{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mut);cursor:pointer;padding:8px 14px;background:var(--sur);border:1px solid var(--bor);border-radius:20px}
+.dm-date{padding:0 24px 12px;font-size:10px;color:var(--mut);letter-spacing:.06em;text-transform:uppercase;flex-shrink:0}
+.dm-tags-row{display:flex;gap:8px;padding:0 24px 16px;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+.dm-tags-row::-webkit-scrollbar{display:none}
+.dm-tag{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid var(--bor);background:var(--sur);color:var(--mut);transition:all .2s;letter-spacing:.04em;text-transform:uppercase}
+.dm-tag.sel{color:#000}
+.dm-area{flex:1;padding:0 24px;overflow:hidden}
+.dm-ta{width:100%;height:100%;background:transparent;border:none;outline:none;font-family:'Playfair Display',serif;font-size:16px;font-style:italic;color:var(--txt);line-height:1.8;resize:none;scrollbar-width:none}
+.dm-ta::placeholder{color:var(--mut)}
+.dm-ta::-webkit-scrollbar{display:none}
+.dm-footer{padding:16px 24px 32px;display:flex;justify-content:flex-end;gap:10px;flex-shrink:0;background:linear-gradient(to top,var(--bg),transparent)}
+
+/* Entry viewer modal */
+.entry-modal{position:absolute;inset:0;background:var(--bg);z-index:201;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .4s cubic-bezier(0.22,1,0.36,1)}
+.entry-modal.open{transform:translateY(0)}
+.em-head{padding:54px 24px 12px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.em-body{flex:1;overflow-y:auto;padding:0 24px 40px;scrollbar-width:none}
+.em-body::-webkit-scrollbar{display:none}
+.em-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.em-date{font-size:10px;color:var(--mut);margin-bottom:20px;letter-spacing:.06em;text-transform:uppercase}
+.em-content{font-family:'Playfair Display',serif;font-size:15px;font-style:italic;line-height:1.85;color:rgba(237,232,223,.85)}
+
+/* ── REVISÃO ── */
+.rev-q{background:var(--sur);border:1px solid var(--bor);border-radius:18px;padding:18px;transition:all .25s}
+.rev-n{font-size:9px;color:var(--mut);letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px}
+.rev-t{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;line-height:1.35;margin-bottom:8px}
+.rev-ta{width:100%;background:var(--sur2);border:1px solid var(--bor);border-radius:12px;padding:12px 14px;font-size:12px;color:var(--txt);font-family:'Syne',sans-serif;resize:none;outline:none;line-height:1.6;min-height:72px;transition:border-color .25s}
+.rev-ta::placeholder{color:var(--mut)}
+.rev-ta:focus{border-color:rgba(201,169,110,.35)}
+.rpc{background:var(--sur);border:1px solid var(--bor);border-radius:16px;padding:14px;cursor:pointer;transition:all .25s;text-align:center}
+.rpc:hover{border-color:var(--bor2)}
+.rpc-sl{height:4px;background:var(--bor);border-radius:10px;overflow:hidden;margin-top:8px}
+.rpc-f{height:100%;border-radius:10px}
+.rpc-sc{font-size:18px;font-weight:700;font-family:'Playfair Display',serif;margin-top:6px}
+
+/* ── CONQUISTAS ── */
+.cq{background:var(--sur);border:1px solid var(--bor);border-radius:18px;padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .25s}
+.cq:hover{transform:translateY(-2px);border-color:var(--bor2)}
+.cq.lk{opacity:.45}
+.cmed{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.cg{background:linear-gradient(135deg,rgba(201,169,110,.3),rgba(201,169,110,.1));border:2px solid rgba(201,169,110,.4)}
+.cs2{background:linear-gradient(135deg,rgba(180,180,200,.3),rgba(180,180,200,.1));border:2px solid rgba(180,180,200,.4)}
+.cbr{background:linear-gradient(135deg,rgba(180,140,100,.3),rgba(180,140,100,.1));border:2px solid rgba(180,140,100,.4)}
+.cl2{background:var(--sur2);border:2px solid var(--bor2)}
+.cq-t{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;margin-bottom:3px}
+.cq-d{font-size:11px;color:var(--mut);line-height:1.5;margin-bottom:6px}
+.cq-x{font-size:10px;font-weight:700;color:var(--gold)}
+
+/* ── CHECK-IN ── */
+.ci-p{background:var(--sur);border:1px solid var(--bor);border-radius:20px;padding:20px}
+.ci-pt{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.ci-pn{font-family:'Playfair Display',serif;font-size:16px;font-weight:600}
+.ci-ps{font-size:10px;color:var(--mut)}
+.ci-sc{display:flex;gap:6px;justify-content:space-between}
+.ci-d{flex:1;height:36px;border-radius:10px;border:1.5px solid var(--bor);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--mut);transition:all .25s;user-select:none}
+.ci-d:hover{border-color:var(--bor2);color:var(--txt);background:var(--sur2)}
+.ci-d.sel{color:#0C0B09}
+.dim.sel{background:var(--mente);border-color:var(--mente)}
+.die.sel{background:var(--emoc);border-color:var(--emoc)}
+.dis.sel{background:var(--espi);border-color:var(--espi)}
+.dif.sel{background:var(--fisi);border-color:var(--fisi)}
+.ci-lr{display:flex;justify-content:space-between;font-size:9px;color:var(--mut);margin-top:6px;padding:0 2px}
+
+/* Conquista modal */
+.cq-modal{position:absolute;inset:0;background:rgba(12,11,9,0.92);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .3s;padding:24px}
+.cq-modal.open{opacity:1;pointer-events:all}
+.cqbox{background:var(--sur);border:1px solid var(--bor2);border-radius:24px;padding:28px;width:100%;text-align:center;transform:scale(0.9);transition:transform .3s;max-width:340px}
+.cq-modal.open .cqbox{transform:scale(1)}
+.cqbox-med{font-size:52px;margin-bottom:12px;display:block}
+.cqbox-tt{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:8px}
+.cqbox-d{font-size:13px;color:var(--mut);line-height:1.6;margin-bottom:20px}
+.cqbox-xp{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:20px}
+.cqbox-close{background:var(--sur2);border:1px solid var(--bor);padding:10px 24px;border-radius:20px;font-size:11px;font-weight:700;color:var(--mut);cursor:pointer;font-family:'Syne',sans-serif;letter-spacing:.05em;text-transform:uppercase;transition:all .2s}
+.cqbox-close:hover{color:var(--txt)}
+.cqbox-claim{background:linear-gradient(135deg,var(--gold),#b8873a);border:none;padding:12px 28px;border-radius:20px;font-size:12px;font-weight:700;color:#1a1200;cursor:pointer;font-family:'Syne',sans-serif;letter-spacing:.05em;text-transform:uppercase;transition:all .2s;margin-bottom:10px;display:block;width:100%}
+.cqbox-claim:hover{opacity:.85;transform:scale(1.02)}
+.cqbox-claim.claimed{background:rgba(201,169,110,.2);color:var(--gold);cursor:default}
+.mission-claim-btn{display:block;width:calc(100% - 32px);margin:10px 16px 4px;padding:10px 16px;background:linear-gradient(135deg,var(--gold),#b8873a);border:none;border-radius:14px;font-size:12px;font-weight:700;color:#1a1200;cursor:pointer;font-family:'Syne',sans-serif;letter-spacing:.05em;text-transform:uppercase;transition:all .2s;text-align:center}
+.mission-claim-btn:hover{opacity:.85;transform:scale(1.01)}
+.mission-claim-btn.claimed{background:rgba(201,169,110,.2);color:var(--gold);cursor:default}
+.cq-claim-dot{font-size:9px;font-weight:700;color:var(--gold);background:rgba(201,169,110,.15);border:1px solid rgba(201,169,110,.3);border-radius:10px;padding:2px 8px;margin-top:6px;display:inline-block;letter-spacing:.05em;text-transform:uppercase;animation:pulse 2s infinite}
+
+/* ── RANK ── */
+.rank-hero{margin:16px 24px 0;background:var(--sur);border:1px solid var(--bor2);border-radius:24px;padding:22px 20px;position:relative;overflow:hidden}
+.rank-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 0%,rgba(201,169,110,0.1) 0%,transparent 65%);pointer-events:none}
+.rank-badge{width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:10px;position:relative}
+.rank-badge::after{content:'';position:absolute;inset:-3px;border-radius:50%;border:2px solid transparent}
+.rank-lv1{background:linear-gradient(135deg,rgba(107,191,142,.25),rgba(107,191,142,.1))}.rank-lv1::after{border-color:var(--fisi)}
+.rank-lv2{background:linear-gradient(135deg,rgba(123,175,212,.25),rgba(123,175,212,.1))}.rank-lv2::after{border-color:var(--mente)}
+.rank-lv3{background:linear-gradient(135deg,rgba(232,149,109,.25),rgba(232,149,109,.1))}.rank-lv3::after{border-color:var(--emoc)}
+.rank-lv4{background:linear-gradient(135deg,rgba(176,159,216,.25),rgba(176,159,216,.1))}.rank-lv4::after{border-color:var(--espi)}
+.rank-lv5{background:linear-gradient(135deg,rgba(201,169,110,.3),rgba(201,169,110,.1))}.rank-lv5::after{border-color:var(--gold)}
+.rank-lv6{background:linear-gradient(135deg,rgba(237,232,223,.2),rgba(201,169,110,.2))}.rank-lv6::after{border-color:#EDE8DF;box-shadow:0 0 12px rgba(201,169,110,.4)}
+.rank-title-lbl{font-size:9px;color:var(--mut);letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:4px}
+.rank-title-name{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;line-height:1.1;margin-bottom:2px}
+.rank-title-name em{font-style:italic;color:var(--gold)}
+.rank-xp-bar-wr{margin-top:14px}
+.rank-xp-lbl{display:flex;justify-content:space-between;font-size:10px;color:var(--mut);margin-bottom:6px}
+.rank-xp-lbl span:last-child{color:var(--gold);font-weight:700}
+.rank-xp-track{height:8px;background:rgba(255,255,255,0.06);border-radius:10px;overflow:hidden}
+.rank-xp-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--gold),#E8C98E);box-shadow:0 0 8px rgba(201,169,110,.4);transition:width 1s cubic-bezier(0.22,1,0.36,1)}
+
+.rank-levels{display:flex;flex-direction:column;gap:10px;padding:0 24px}
+.rl{background:var(--sur);border:1px solid var(--bor);border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:14px;transition:all .25s;cursor:default}
+.rl.current{border-color:rgba(201,169,110,.35);background:rgba(201,169,110,.05)}
+.rl.locked{opacity:.38}
+.rl-ic{font-size:26px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:14px;background:var(--sur2)}
+.rl-info{flex:1}
+.rl-name{font-size:13px;font-weight:700;margin-bottom:2px}
+.rl-req{font-size:10px;color:var(--mut)}
+.rl-badge{font-size:9px;font-weight:700;padding:3px 9px;border-radius:20px}
+.rl-curr{background:rgba(201,169,110,.15);border:1px solid rgba(201,169,110,.3);color:var(--gold)}
+.rl-done{background:rgba(107,191,142,.12);border:1px solid rgba(107,191,142,.25);color:var(--fisi)}
+
+.rank-pillars{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 24px}
+.rp{background:var(--sur);border:1px solid var(--bor);border-radius:18px;padding:16px 14px;position:relative;overflow:hidden}
+.rp::before{content:'';position:absolute;inset:0;opacity:.06;transition:opacity .3s;border-radius:18px}
+.rp-m::before{background:var(--mente)}.rp-e::before{background:var(--emoc)}.rp-s::before{background:var(--espi)}.rp-f::before{background:var(--fisi)}
+.rp-ic{font-size:20px;margin-bottom:6px}
+.rp-name{font-size:10px;font-weight:700;margin-bottom:2px}
+.rp-rank{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;line-height:1}
+.rp-m .rp-rank{color:var(--mente)}.rp-e .rp-rank{color:var(--emoc)}.rp-s .rp-rank{color:var(--espi)}.rp-f .rp-rank{color:var(--fisi)}
+.rp-sub{font-size:9px;color:var(--mut);margin-top:2px}
+.rp-bar{height:4px;background:rgba(255,255,255,0.06);border-radius:10px;overflow:hidden;margin-top:10px}
+.rp-fill{height:100%;border-radius:10px;transition:width 1.2s cubic-bezier(0.22,1,0.36,1)}
+.rp-m .rp-fill{background:linear-gradient(90deg,var(--mente),#A8D0EC)}
+.rp-e .rp-fill{background:linear-gradient(90deg,var(--emoc),#F0B08E)}
+.rp-s .rp-fill{background:linear-gradient(90deg,var(--espi),#C8BAEB)}
+.rp-f .rp-fill{background:linear-gradient(90deg,var(--fisi),#90D4A8)}
+
+/* ══════════ AUTH SCREENS ══════════ */
+@keyframes authIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.auth-wrap{position:absolute;inset:0;background:var(--bg);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 0 0 0}
+.auth-wrap.hidden{display:none}
+.auth-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 15%,rgba(201,169,110,0.12) 0%,transparent 60%),radial-gradient(ellipse at 20% 80%,rgba(176,159,216,0.08) 0%,transparent 50%)}
+.auth-logo{position:absolute;top:0;left:0;right:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:80px}
+.auth-logo-ic{font-size:52px;margin-bottom:16px;filter:drop-shadow(0 0 24px rgba(201,169,110,0.4))}
+.auth-logo-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;letter-spacing:-.02em;text-align:center;line-height:1.2}
+.auth-logo-title em{font-style:italic;color:var(--gold)}
+.auth-logo-sub{font-size:11px;color:var(--mut);letter-spacing:.08em;text-transform:uppercase;margin-top:8px}
+.auth-sheet{background:var(--sur);border-radius:28px 28px 0 0;border:1px solid var(--bor2);border-bottom:none;width:100%;padding:28px 28px 44px;position:relative;z-index:1;animation:authIn .5s cubic-bezier(0.22,1,0.36,1) both}
+.auth-tabs{display:flex;gap:4px;background:var(--sur2);border-radius:14px;padding:4px;margin-bottom:24px}
+.auth-tab{flex:1;padding:9px;border-radius:10px;text-align:center;font-size:12px;font-weight:700;cursor:pointer;color:var(--mut);transition:all .25s;letter-spacing:.04em}
+.auth-tab.active{background:var(--sur3);color:var(--txt);box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+.auth-field{margin-bottom:14px}
+.auth-label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mut);margin-bottom:6px;display:block}
+.auth-input{width:100%;background:var(--sur2);border:1px solid var(--bor2);border-radius:14px;padding:13px 16px;font-size:14px;color:var(--txt);font-family:'Syne',sans-serif;outline:none;transition:border-color .25s}
+.auth-input:focus{border-color:rgba(201,169,110,.4)}
+.auth-input::placeholder{color:var(--mut)}
+.auth-btn{width:100%;background:var(--gold);color:#1a1000;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:15px;border-radius:16px;cursor:pointer;border:none;margin-top:6px;transition:all .25s;box-shadow:0 8px 24px rgba(201,169,110,.25)}
+.auth-btn:hover{opacity:.9;transform:translateY(-1px)}
+.auth-btn:active{transform:translateY(0)}
+.auth-btn:disabled{opacity:.5;cursor:default;transform:none}
+.auth-err{background:rgba(232,124,109,.1);border:1px solid rgba(232,124,109,.3);border-radius:12px;padding:10px 14px;font-size:11px;color:#E87C6D;margin-bottom:14px;display:none}
+.auth-err.show{display:block}
+.auth-sep{display:flex;align-items:center;gap:12px;margin:16px 0}
+.auth-sep::before,.auth-sep::after{content:'';flex:1;height:1px;background:var(--bor)}
+.auth-sep span{font-size:10px;color:var(--mut);font-weight:600}
+.auth-terms{font-size:10px;color:var(--mut);text-align:center;margin-top:14px;line-height:1.6}
+.auth-forgot{font-size:11px;color:var(--gold);text-align:right;cursor:pointer;margin-top:-8px;margin-bottom:10px;display:block}
+.auth-forgot:hover{opacity:.8}
+.auth-loading{display:none;text-align:center;padding:8px;font-size:12px;color:var(--mut)}
+.auth-loading.show{display:block}
+.auth-ok{background:rgba(107,191,142,.12);border:1px solid rgba(107,191,142,.3);border-radius:12px;padding:10px 14px;font-size:11px;color:#6BBF8E;margin-bottom:14px;display:none}
+.auth-ok.show{display:block}
+.auth-remember{display:flex;align-items:center;gap:8px;margin:12px 0 4px}
+.auth-remember input[type=checkbox]{appearance:none;-webkit-appearance:none;width:18px;height:18px;border-radius:6px;border:1.5px solid var(--bor2);background:var(--sur2);cursor:pointer;flex-shrink:0;transition:all .2s;position:relative}
+.auth-remember input[type=checkbox]:checked{background:var(--gold);border-color:var(--gold)}
+.auth-remember input[type=checkbox]:checked::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:11px;font-weight:700;color:#1a1000}
+.auth-remember label{font-size:11px;color:var(--mut);cursor:pointer;user-select:none}
+
+/* Profile menu */
+.profile-btn{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--mente),var(--espi));display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;box-shadow:0 0 0 2px rgba(255,255,255,0.08);flex-shrink:0}
+.profile-menu{position:absolute;top:60px;right:24px;background:var(--sur);border:1px solid var(--bor2);border-radius:18px;padding:8px;z-index:100;min-width:180px;box-shadow:0 20px 60px rgba(0,0,0,0.5);display:none}
+.profile-menu.open{display:block;animation:slideUp .2s ease both}
+.pm-item{padding:10px 14px;border-radius:12px;font-size:12px;font-weight:600;cursor:pointer;transition:background .2s;display:flex;align-items:center;gap:10px}
+.pm-item:hover{background:var(--sur2)}
+.pm-item.danger{color:#E87C6D}
+.pm-divider{height:1px;background:var(--bor);margin:4px 0}
+.pm-username{padding:10px 14px;font-size:10px;color:var(--mut);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- Status bar -->
+<div class="sb">
+  <span id="sbTime">9:41</span>
+  <div class="sb-r">
+    <svg width="16" height="11" viewBox="0 0 16 11" fill="none">
+      <rect x="0" y="4" width="3" height="7" rx="1" fill="currentColor" opacity=".35"/>
+      <rect x="4.5" y="2.5" width="3" height="8.5" rx="1" fill="currentColor" opacity=".55"/>
+      <rect x="9" y="0" width="3" height="11" rx="1" fill="currentColor" opacity=".8"/>
+      <rect x="13.5" y="0" width="2.5" height="11" rx="1" fill="currentColor"/>
+    </svg>
+    <div class="batt"><div class="batt-f"></div></div>
+  </div>
+</div>
+
+<!-- ══════════ AUTH ══════════ -->
+<div class="auth-wrap" id="authWrap">
+  <div class="auth-bg"></div>
+  <div class="auth-logo">
+    <div class="auth-logo-ic">✦</div>
+    <div class="auth-logo-title">Viver em<br><em>Equilíbrio</em></div>
+    <div class="auth-logo-sub">Mente · Emoções · Espírito · Corpo</div>
+  </div>
+  <div class="auth-sheet">
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tab-login" onclick="switchAuth('login')">Entrar</div>
+      <div class="auth-tab" id="tab-signup" onclick="switchAuth('signup')">Criar conta</div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="form-login">
+      <div class="auth-err" id="login-err"></div>
+      <div class="auth-ok" id="login-ok"></div>
+      <div class="auth-field">
+        <label class="auth-label">E-mail</label>
+        <input class="auth-input" id="login-email" type="email" placeholder="seu@email.com" autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">Senha</label>
+        <input class="auth-input" id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <span class="auth-forgot" onclick="switchAuth('forgot')">Esqueci minha senha</span>
+      <div class="auth-remember">
+        <input type="checkbox" id="rememberMe" checked>
+        <label for="rememberMe">Lembrar de mim neste dispositivo</label>
+      </div>
+      <button class="auth-btn" id="btn-login" onclick="doLogin()">Entrar na jornada ✦</button>
+      <div class="auth-loading" id="login-loading">Entrando...</div>
+      <div class="auth-terms">Ainda não tem conta? <span style="color:var(--gold);cursor:pointer" onclick="switchAuth('signup')">Crie uma grátis</span></div>
+    </div>
+
+    <!-- ESQUECI SENHA -->
+    <div id="form-forgot" style="display:none">
+      <div class="auth-err" id="forgot-err"></div>
+      <div class="auth-ok" id="forgot-ok"></div>
+      <div style="font-size:12px;color:var(--mut);margin-bottom:16px;line-height:1.6">Vamos enviar um link de redefinição para o seu e-mail. Verifique a caixa de entrada e o spam.</div>
+      <div class="auth-field">
+        <label class="auth-label">Seu e-mail</label>
+        <input class="auth-input" id="forgot-email" type="email" placeholder="seu@email.com" autocomplete="email">
+      </div>
+      <button class="auth-btn" id="btn-forgot" onclick="doForgotPass()">Enviar link de redefinição ✦</button>
+      <div class="auth-loading" id="forgot-loading">Enviando e-mail...</div>
+      <div class="auth-terms" style="margin-top:14px"><span style="color:var(--gold);cursor:pointer" onclick="switchAuth('login')">← Voltar para o login</span></div>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="form-signup" style="display:none">
+      <div class="auth-err" id="signup-err"></div>
+      <div class="auth-field">
+        <label class="auth-label">Seu nome</label>
+        <input class="auth-input" id="signup-name" type="text" placeholder="Como quer ser chamado?" autocomplete="name">
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">E-mail</label>
+        <input class="auth-input" id="signup-email" type="email" placeholder="seu@email.com" autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">Senha</label>
+        <input class="auth-input" id="signup-pass" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+      </div>
+      <button class="auth-btn" id="btn-signup" onclick="doSignup()">Começar minha jornada ✦</button>
+      <div class="auth-terms">Ao criar uma conta você concorda com os<br>Termos de Uso do app.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ HOME ══════════ -->
+<div class="screen active" id="s-home">
+<div class="scroll" id="scr-home">
+  <div style="padding:18px 24px 0;display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <div style="font-size:10px;color:var(--mut);letter-spacing:.07em;text-transform:uppercase;margin-bottom:3px">Bom dia</div>
+      <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;letter-spacing:-.01em">Olá, <em style="font-style:italic;color:var(--gold)" id="homeUserName">...</em> 👋</div>
+    </div>
+    <div style="position:relative">
+      <div class="profile-btn" id="profileBtn" onclick="toggleProfileMenu()">🌿</div>
+      <div class="profile-menu" id="profileMenu">
+        <div class="pm-username" id="profileEmail"></div>
+        <div class="pm-divider"></div>
+        <div class="pm-item" onclick="closeProfileMenu()">⚙️ Configurações</div>
+        <div class="pm-item danger" onclick="doLogout()">↩ Sair da conta</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sc-card">
+    <div class="sc-top">
+      <div>
+        <div class="sc-lbl">Equilíbrio Geral · Média dos 4 pilares</div>
+        <div class="sc-num">0<span>/100</span></div>
+        <div class="sc-trend" style="color:var(--mut);background:var(--faint);border-color:var(--bor)">Complete missões para evoluir</div>
+      </div>
+      <div class="ring-wr">
+        <svg viewBox="0 0 72 72" width="72" height="72">
+          <circle class="ring-bg" cx="36" cy="36" r="28"/>
+          <circle class="ring-fg" cx="36" cy="36" r="28" style="stroke-dashoffset:175"/>
+        </svg>
+        <div class="ring-txt" style="color:var(--mut)">0%</div>
+      </div>
+    </div>
+    <div style="font-size:9px;color:var(--mut);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">Últimos 7 dias</div>
+    <div class="chart-days" id="homeChart"></div>
+  </div>
+
+  <div class="sl">Saúde por Pilar <span class="sl-a" onclick="go('mapa')">Ver detalhes →</span></div>
+  <div class="pr">
+    <div class="pc pm" onclick="go('mapa')">
+      <div class="pt"><span style="font-size:20px">🧠</span><span class="pill pm pb">—</span></div>
+      <div class="pn">Saúde da Mente</div><div class="ps2">Clareza & foco</div>
+      <div class="sp"><svg viewBox="0 0 110 40" preserveAspectRatio="none"><path d="M0,40 L110,40" fill="none" stroke="rgba(123,175,212,.2)" stroke-width="2"/></svg></div>
+      <div class="pr2"><div class="pv" style="color:var(--mut)">—</div></div>
+    </div>
+    <div class="pc pe" onclick="go('mapa')">
+      <div class="pt"><span style="font-size:20px">🌊</span><span class="pill pe pb">—</span></div>
+      <div class="pn">Saúde das Emoções</div><div class="ps2">Sentir & integrar</div>
+      <div class="sp"><svg viewBox="0 0 110 40" preserveAspectRatio="none"><path d="M0,40 L110,40" fill="none" stroke="rgba(232,149,109,.2)" stroke-width="2"/></svg></div>
+      <div class="pr2"><div class="pv" style="color:var(--mut)">—</div></div>
+    </div>
+    <div class="pc psp" onclick="go('mapa')">
+      <div class="pt"><span style="font-size:20px">✦</span><span class="pill psp pb">—</span></div>
+      <div class="pn">Espiritualidade</div><div class="ps2">Sentido & presença</div>
+      <div class="sp"><svg viewBox="0 0 110 40" preserveAspectRatio="none"><path d="M0,40 L110,40" fill="none" stroke="rgba(176,159,216,.2)" stroke-width="2"/></svg></div>
+      <div class="pr2"><div class="pv" style="color:var(--mut)">—</div></div>
+    </div>
+    <div class="pc pf" onclick="go('mapa')">
+      <div class="pt"><span style="font-size:20px">🌿</span><span class="pill pf pb">—</span></div>
+      <div class="pn">Saúde Física</div><div class="ps2">Corpo & vitalidade</div>
+      <div class="sp"><svg viewBox="0 0 110 40" preserveAspectRatio="none"><path d="M0,40 L110,40" fill="none" stroke="rgba(107,191,142,.2)" stroke-width="2"/></svg></div>
+      <div class="pr2"><div class="pv" style="color:var(--mut)">—</div></div>
+    </div>
+  </div>
+
+  <div class="sl">Atalhos rápidos</div>
+  <div class="sh-grid">
+    <div class="sh sha" onclick="go('missoes')"><span class="sh-ic">⚡</span><span class="sh-lb">Missões</span></div>
+    <div class="sh" onclick="go('praticas')"><span class="sh-ic">🎯</span><span class="sh-lb">Práticas</span></div>
+    <div class="sh" onclick="go('mapa')"><span class="sh-ic">🗺️</span><span class="sh-lb">Meu Mapa</span></div>
+    <div class="sh" onclick="go('rotinas')"><span class="sh-ic">☀️</span><span class="sh-lb">Rotinas</span></div>
+    <div class="sh" onclick="go('diario')"><span class="sh-ic">📓</span><span class="sh-lb">Diário</span></div>
+    <div class="sh" onclick="go('revisao')"><span class="sh-ic">📆</span><span class="sh-lb">Revisão</span></div>
+    <div class="sh" onclick="go('conquistas')"><span class="sh-ic">🏆</span><span class="sh-lb">Conquistas</span></div>
+    <div class="sh" onclick="go('rank')"><span class="sh-ic">🏅</span><span class="sh-lb">Rank</span></div>
+  </div>
+
+  <div class="sl">Comece sua jornada</div>
+  <div class="ins" onclick="go('praticas')">
+    <div class="ins-top"><div class="ins-dot"></div><div style="font-size:10px;font-weight:600;color:var(--espi);letter-spacing:.07em;text-transform:uppercase">Sugestão para hoje</div></div>
+    <div class="ins-txt">"Viver em equilíbrio não é eliminar o caos — é aprender a dançar com ele sem perder o centro."</div>
+    <div class="ins-act">Explorar práticas →</div>
+  </div>
+  <div style="height:12px"></div>
+</div>
+</div>
+
+<!-- ══════════ MISSÕES ══════════ -->
+<div class="screen" id="s-missoes">
+  <div class="ph" style="flex-shrink:0"><div><div class="ph-sm">Hoje</div><div class="ph-tt">Suas <em>Missões</em></div></div><div class="back" onclick="go('home')">←</div></div>
+  <div class="tabs" style="flex-shrink:0">
+    <div class="tab tab-m at" id="mtab-m" onclick="switchMissTab('m')">🧠 Mente</div>
+    <div class="tab tab-e" id="mtab-e" onclick="switchMissTab('e')">🌊 Emoções</div>
+    <div class="tab tab-s" id="mtab-s" onclick="switchMissTab('s')">✦ Espírito</div>
+    <div class="tab tab-f" id="mtab-f" onclick="switchMissTab('f')">🌿 Físico</div>
+    <div class="tab" id="mtab-hoje" onclick="switchMissTab('hoje')" style="background:var(--gold-bg);border-color:rgba(201,169,110,.3);color:var(--gold)">⚡ Hoje</div>
+  </div>
+
+  <!-- HOJE -->
+  <div id="mview-hoje" class="scroll" style="padding:12px 16px 88px;display:none">
+    <div id="hoje-empty" style="text-align:center;padding:40px 20px;color:var(--mut);font-size:12px;display:none">
+      <div style="font-size:36px;margin-bottom:12px">⚡</div>
+      <div style="font-weight:700;margin-bottom:6px;color:var(--txt)">Nenhuma missão confirmada</div>
+      <div>Vá em cada pilar, selecione até 4 missões e confirme.</div>
+    </div>
+    <div id="hoje-progress" style="background:var(--sur);border:1px solid var(--bor2);border-radius:20px;padding:16px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700">Equilíbrio de hoje</div>
+        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--gold)" id="hoje-pct">0%</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><div style="display:flex;justify-content:space-between;font-size:9px;color:var(--mut);margin-bottom:3px"><span>🧠 Mente</span><span id="bar-m-pct">0%</span></div><div style="background:var(--bor);height:5px;border-radius:10px;overflow:hidden"><div id="bar-m" style="height:100%;border-radius:10px;background:var(--mente);width:0%;transition:width .4s"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:9px;color:var(--mut);margin-bottom:3px"><span>🌊 Emoções</span><span id="bar-e-pct">0%</span></div><div style="background:var(--bor);height:5px;border-radius:10px;overflow:hidden"><div id="bar-e" style="height:100%;border-radius:10px;background:var(--emoc);width:0%;transition:width .4s"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:9px;color:var(--mut);margin-bottom:3px"><span>✦ Espírito</span><span id="bar-s-pct">0%</span></div><div style="background:var(--bor);height:5px;border-radius:10px;overflow:hidden"><div id="bar-s" style="height:100%;border-radius:10px;background:var(--espi);width:0%;transition:width .4s"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:9px;color:var(--mut);margin-bottom:3px"><span>🌿 Físico</span><span id="bar-f-pct">0%</span></div><div style="background:var(--bor);height:5px;border-radius:10px;overflow:hidden"><div id="bar-f" style="height:100%;border-radius:10px;background:var(--fisi);width:0%;transition:width .4s"></div></div></div>
+      </div>
+    </div>
+    <div id="hoje-list" style="display:flex;flex-direction:column;gap:10px"></div>
+  </div>
+
+  <!-- PILAR MENTE -->
+  <div id="mview-m" class="scroll" style="padding:12px 16px 88px">
+    <div id="status-banner-m"></div>
+    <div id="ativas-m"></div>
+    <div id="list-m" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div id="confirm-wrap-m" style="padding:16px 0 0"></div>
+  </div>
+
+  <!-- PILAR EMOÇÕES -->
+  <div id="mview-e" class="scroll" style="padding:12px 16px 88px;display:none">
+    <div id="status-banner-e"></div>
+    <div id="ativas-e"></div>
+    <div id="list-e" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div id="confirm-wrap-e" style="padding:16px 0 0"></div>
+  </div>
+
+  <!-- PILAR ESPÍRITO -->
+  <div id="mview-s" class="scroll" style="padding:12px 16px 88px;display:none">
+    <div id="status-banner-s"></div>
+    <div id="ativas-s"></div>
+    <div id="list-s" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div id="confirm-wrap-s" style="padding:16px 0 0"></div>
+  </div>
+
+  <!-- PILAR FÍSICO -->
+  <div id="mview-f" class="scroll" style="padding:12px 16px 88px;display:none">
+    <div id="status-banner-f"></div>
+    <div id="ativas-f"></div>
+    <div id="list-f" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div id="confirm-wrap-f" style="padding:16px 0 0"></div>
+  </div>
+</div>
+
+<!-- ══════════ PRÁTICAS ══════════ -->
+<div class="screen" id="s-praticas">
+  <div class="ph" style="flex-shrink:0"><div><div class="ph-sm">Biblioteca</div><div class="ph-tt">Suas <em>Práticas</em></div></div><div class="back" onclick="go('home')">←</div></div>
+  <div class="scroll">
+    <div class="sl" style="padding-bottom:8px">Em destaque</div>
+    <div class="prat-list" id="pratList">
+      <div class="prat anim-in" onclick="openPrat('resp')">
+        <div class="pi" style="background:linear-gradient(135deg,rgba(176,159,216,.25),rgba(123,175,212,.15))">🫁</div>
+        <div class="pinfo"><div class="ptt">Respiração 4-7-8</div><div class="pm2">✦ Espiritualidade · 5 min · Iniciante</div><div class="pbar"><div class="pf2" style="width:100%;background:linear-gradient(90deg,var(--espi),#C8BAEB)"></div></div></div>
+        <div class="pcta" style="background:rgba(176,159,216,.15);color:var(--espi);border-color:rgba(176,159,216,.3)">▶ Iniciar</div>
+      </div>
+      <div class="prat anim-in" onclick="openPrat('scan')">
+        <div class="pi" style="background:var(--fisi-bg)">🌿</div>
+        <div class="pinfo"><div class="ptt">Scan Corporal</div><div class="pm2">🌿 Saúde Física · 10 min · Todos os níveis</div><div class="pbar"><div class="pf2" style="width:75%;background:linear-gradient(90deg,var(--fisi),#90D4A8)"></div></div></div>
+        <div class="pcta" style="background:var(--fisi-bg);color:var(--fisi);border-color:rgba(107,191,142,.3)">▶ Iniciar</div>
+      </div>
+      <div class="prat anim-in" onclick="openPrat('roda')">
+        <div class="pi" style="background:var(--emoc-bg)">🌊</div>
+        <div class="pinfo"><div class="ptt">Roda das Emoções</div><div class="pm2">🌊 Emoções · 8 min · Reflexivo</div><div class="pbar"><div class="pf2" style="width:50%;background:linear-gradient(90deg,var(--emoc),#F0B08E)"></div></div></div>
+        <div class="pcta" style="background:var(--emoc-bg);color:var(--emoc);border-color:rgba(232,149,109,.3)">▶ Iniciar</div>
+      </div>
+      <div class="prat anim-in" onclick="openPrat('journal')">
+        <div class="pi" style="background:var(--mente-bg)">🧠</div>
+        <div class="pinfo"><div class="ptt">Journaling Cognitivo</div><div class="pm2">🧠 Saúde da Mente · 15 min · Intermediário</div><div class="pbar"><div class="pf2" style="width:40%;background:linear-gradient(90deg,var(--mente),#A8D0EC)"></div></div></div>
+        <div class="pcta" style="background:var(--mente-bg);color:var(--mente);border-color:rgba(123,175,212,.3)">▶ Iniciar</div>
+      </div>
+      <div class="prat anim-in" onclick="openPrat('mov')">
+        <div class="pi" style="background:var(--fisi-bg)">💃</div>
+        <div class="pinfo"><div class="ptt">Movimento Livre</div><div class="pm2">🌿 Saúde Física · 5 min · Lúdico</div><div class="pbar"><div class="pf2" style="width:20%;background:linear-gradient(90deg,var(--fisi),#90D4A8)"></div></div></div>
+        <div class="pcta" style="background:var(--fisi-bg);color:var(--fisi);border-color:rgba(107,191,142,.3)">▶ Iniciar</div>
+      </div>
+      <div class="prat anim-in" onclick="openPrat('ceu')">
+        <div class="pi" style="background:var(--espi-bg)">🌌</div>
+        <div class="pinfo"><div class="ptt">Contemplação do Céu</div><div class="pm2">✦ Espiritualidade · 5 min · Simples</div><div class="pbar"><div class="pf2" style="width:85%;background:linear-gradient(90deg,var(--espi),#C8BAEB)"></div></div></div>
+        <div class="pcta" style="background:var(--espi-bg);color:var(--espi);border-color:rgba(176,159,216,.3)">▶ Iniciar</div>
+      </div>
+    </div>
+    <div style="height:20px"></div>
+  </div>
+  <!-- Practice modal -->
+  <div class="pmodal" id="pmodal" onclick="if(event.target===this)closePrat()">
+    <div class="pmbox">
+      <div class="pmh"><div class="pmtitle" id="pm-title"></div><div class="pmclose" onclick="closePrat()">✕</div></div>
+      <div class="pm-steps" id="pm-steps"></div>
+      <div class="pm-timer" onclick="startTimer()"><span class="pt-ic">⏱</span><span class="pt-txt" id="pm-timer-txt">Iniciar temporizador</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MAPA ══════════ -->
+<div class="screen" id="s-mapa">
+  <div class="ph" style="flex-shrink:0"><div><div class="ph-sm">Seus 4 Pilares</div><div class="ph-tt">Meu <em>Mapa</em></div></div><div class="back" onclick="go('home')">←</div></div>
+  <div class="scroll">
+    <div class="mapa-ring">
+      <div class="mapa-rw">
+        <svg viewBox="0 0 140 140" width="140" height="140">
+          <circle cx="70" cy="70" r="56" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12"/>
+          <circle cx="70" cy="70" r="56" fill="none" stroke="var(--gold)" stroke-width="12" stroke-linecap="round" stroke-dasharray="352" stroke-dashoffset="352" transform="rotate(-90 70 70)" filter="drop-shadow(0 0 8px rgba(201,169,110,0.4))"/>
+        </svg>
+        <div class="mapa-rt"><div class="mapa-rn">0</div><div class="mapa-rl">Equilíbrio</div></div>
+      </div>
+    </div>
+    <div class="sl" style="padding-top:4px">Pilares de hoje</div>
+    <div class="hbars">
+      <div class="hbr"><div class="hbi">🧠</div><div class="hbd"><div class="hbt"><span>Saúde da Mente</span><span class="hbp" style="color:var(--mente)">—</span></div><div class="hbtr"><div class="hbf hm" style="width:0%"></div></div></div></div>
+      <div class="hbr"><div class="hbi">🌊</div><div class="hbd"><div class="hbt"><span>Saúde das Emoções</span><span class="hbp" style="color:var(--emoc)">—</span></div><div class="hbtr"><div class="hbf he" style="width:0%"></div></div></div></div>
+      <div class="hbr"><div class="hbi">✦</div><div class="hbd"><div class="hbt"><span>Espiritualidade</span><span class="hbp" style="color:var(--espi)">—</span></div><div class="hbtr"><div class="hbf hs" style="width:0%"></div></div></div></div>
+      <div class="hbr"><div class="hbi">🌿</div><div class="hbd"><div class="hbt"><span>Saúde Física</span><span class="hbp" style="color:var(--fisi)">—</span></div><div class="hbtr"><div class="hbf hf" style="width:0%"></div></div></div></div>
+    </div>
+    <div class="sl" style="padding-top:12px">Atualize via Missões</div>
+    <div style="padding:0 24px 88px">
+      <div class="ci-s" onclick="go('missoes')" style="border-radius:18px;cursor:pointer">
+        <div style="font-size:22px">⚡</div>
+        <div class="ci-i"><div class="ci-t">Complete suas missões</div><div class="ci-d">O mapa atualiza automaticamente conforme você avança</div></div>
+        <div class="gold-btn" onclick="event.stopPropagation();go('missoes')">Ver Missões</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ROTINAS ══════════ -->
+<div class="screen" id="s-rotinas">
+  <div class="ph" style="flex-shrink:0"><div><div class="ph-sm">Seus rituais</div><div class="ph-tt">Suas <em>Rotinas</em></div></div><div class="back" onclick="go('home')">←</div></div>
+  <div class="rot-tabs" style="flex-shrink:0">
+    <div class="rtt ar" onclick="switchRot(this,'rot-m')">☀️ Manhã</div>
+    <div class="rtt" onclick="switchRot(this,'rot-t')">🌤 Tarde</div>
+    <div class="rtt" onclick="switchRot(this,'rot-n')">🌙 Noite</div>
+  </div>
+  <div class="scroll" style="padding:14px 16px 88px;gap:10px;display:flex;flex-direction:column">
+    <div id="rot-m" style="display:flex;flex-direction:column;gap:10px">
+      <div id="rot-m-list"></div>
+      <button class="rot-add-btn" onclick="openAddAcao('m')">+ Adicionar ação</button>
+    </div>
+    <div id="rot-t" style="display:none;flex-direction:column;gap:10px">
+      <div id="rot-t-list"></div>
+      <button class="rot-add-btn" onclick="openAddAcao('t')">+ Adicionar ação</button>
+    </div>
+    <div id="rot-n" style="display:none;flex-direction:column;gap:10px">
+      <div id="rot-n-list"></div>
+      <button class="rot-add-btn" onclick="openAddAcao('n')">+ Adicionar ação</button>
+    </div>
+  </div>
+
+  <!-- Modal: Adicionar ação -->
+  <div id="rot-modal" style="display:none;position:absolute;inset:0;background:rgba(12,11,9,.96);z-index:200;flex-direction:column;padding:28px 24px 40px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+      <div style="font-family:'Playfair Display',serif;font-size:18px">Nova <em>ação</em></div>
+      <div style="cursor:pointer;color:var(--mut);font-size:13px" onclick="closeAddAcao()">Cancelar</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div>
+        <div style="font-size:10px;color:var(--mut);margin-bottom:6px;font-weight:600;letter-spacing:.05em">HORÁRIO</div>
+        <input id="rot-hora" type="time" style="width:100%;background:var(--sur2);border:1px solid var(--bor2);border-radius:12px;padding:11px 14px;color:var(--txt);font-family:Syne,sans-serif;font-size:14px;font-weight:600">
+      </div>
+      <div>
+        <div style="font-size:10px;color:var(--mut);margin-bottom:6px;font-weight:600;letter-spacing:.05em">AÇÃO</div>
+        <input id="rot-nome" type="text" placeholder="Ex: Acordar, Meditar, Caminhar..." style="width:100%;background:var(--sur2);border:1px solid var(--bor2);border-radius:12px;padding:11px 14px;color:var(--txt);font-family:Syne,sans-serif;font-size:13px">
+      </div>
+      <div>
+        <div style="font-size:10px;color:var(--mut);margin-bottom:6px;font-weight:600;letter-spacing:.05em">DESCRIÇÃO (opcional)</div>
+        <input id="rot-desc" type="text" placeholder="Detalhes da ação..." style="width:100%;background:var(--sur2);border:1px solid var(--bor2);border-radius:12px;padding:11px 14px;color:var(--txt);font-family:Syne,sans-serif;font-size:13px">
+      </div>
+    </div>
+    <button class="gold-btn" style="display:block;width:100%;text-align:center;margin-top:28px" onclick="salvarAcao()">✦ Salvar ação</button>
+  </div>
+</div>
+
+<!-- ══════════ DIÁRIO ══════════ -->
+<div class="screen" id="s-diario">
+  <div class="ph" style="flex-shrink:0"><div><div class="ph-sm">Seus registros</div><div class="ph-tt">Meu <em>Diário</em></div></div><div class="back" onclick="go('home')">←</div></div>
+  <div class="scroll" style="padding:14px 0 88px">
+    <div class="de-new" onclick="openDiary()">
+      <span style="font-size:20px">✏️</span>
+      <span style="font-size:12px;font-weight:600;color:rgba(201,169,110,.7)">Nova entrada · Hoje</span>
+    </div>
+    <div class="sl" style="padding-top:16px">Entradas anteriores</div>
+    <div class="diary-list" id="diaryList">
+      <div style="text-align:center;padding:24px 0;color:var(--mut);font-size:12px">Carregando entradas...</div>
+    </div>
+  </div>
+  <!-- Diary modal/editor -->
+  <div class="diary-modal" id="diaryModal">
+    <div class="dm-head"><div class="dm-title">Nova entrada</div><div class="dm-close" onclick="closeDiary()">Cancelar</div></div>
+    <div class="dm-date" id="dm-date"></div>
+    <input id="diaryTitle" type="text" placeholder="Título da entrada (opcional)" style="width:100%;background:var(--sur2);border:1px solid var(--bor2);border-radius:12px;padding:11px 14px;color:var(--txt);font-family:'Playfair Display',serif;font-size:14px;margin-bottom:10px;box-sizing:border-box">
+    <div class="dm-tags-row">
+      <div class="dm-tag" onclick="selTag(this,'var(--mente)')">🧠 Mente</div>
+      <div class="dm-tag" onclick="selTag(this,'var(--emoc)')">🌊 Emoções</div>
+      <div class="dm-tag" onclick="selTag(this,'var(--espi)')">✦ Espírito</div>
+      <div class="dm-tag" onclick="selTag(this,'var(--fisi)')">🌿 Físico</div>
+    </div>
+    <div class="dm-area"><textarea class="dm-ta" id="diaryTa" placeholder="O que está em você agora?"></textarea></div>
+    <div class="dm-footer"><button class="gold-btn" onclick="saveDiary()">Salvar ✦</button></div>
+  </div>
+  <div class="entry-modal" id="entryModal">
+    <div class="em-head"><div class="dm-title" id="em-ttl">Entrada</div><div class="dm-close" onclick="closeEntry()">Fechar</div></div>
+    <div class="em-body">
+      <div class="em-title" id="em-title"></div>
+      <div class="em-date" id="em-date"></div>
+      <div class="em-content" id="em-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ REVISÃO ══════════ -->
+<div class="screen" id="s-revisao">
+  <div class="ph" style="flex-shrink:0"><div><div class="ph-sm">Reflexão Semanal</div><div class="ph-tt">Revisão <em>Semanal</em></div></div><div class="back" onclick="go('home')">←</div></div>
+  <div class="scroll" style="padding:14px 24px 88px;display:flex;flex-direction:column;gap:14px">
+    <div style="background:var(--gold-bg);border:1px solid rgba(201,169,110,.2);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px">
+      <span style="font-size:22px">📆</span>
+      <div><div style="font-size:12px;font-weight:700;margin-bottom:2px">Semana 1 · Sua jornada começa</div><div style="font-size:10px;color:var(--mut)">Faça check-ins diários para acompanhar sua evolução</div></div>
+    </div>
+    <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)">Como foi cada pilar?</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="rpc"><div style="font-size:22px;margin-bottom:6px">🧠</div><div style="font-size:10px;font-weight:700;color:var(--mente)">Mente</div><div class="rpc-sl"><div class="rpc-f" style="width:0%;background:var(--mente)"></div></div><div class="rpc-sc" style="color:var(--mut)">—</div></div>
+      <div class="rpc"><div style="font-size:22px;margin-bottom:6px">🌊</div><div style="font-size:10px;font-weight:700;color:var(--emoc)">Emoções</div><div class="rpc-sl"><div class="rpc-f" style="width:0%;background:var(--emoc)"></div></div><div class="rpc-sc" style="color:var(--mut)">—</div></div>
+      <div class="rpc"><div style="font-size:22px;margin-bottom:6px">✦</div><div style="font-size:10px;font-weight:700;color:var(--espi)">Espírito</div><div class="rpc-sl"><div class="rpc-f" style="width:0%;background:var(--espi)"></div></div><div class="rpc-sc" style="color:var(--mut)">—</div></div>
+      <div class="rpc"><div style="font-size:22px;margin-bottom:6px">🌿</div><div style="font-size:10px;font-weight:700;color:var(--fisi)">Físico</div><div class="rpc-sl"><div class="rpc-f" style="width:0%;background:var(--fisi)"></div></div><div class="rpc-sc" style="color:var(--mut)">—</div></div>
+    </div>
+    <div class="rev-q"><div class="rev-n">Pergunta 01</div><div class="rev-t">O que foi mais significativo para você esta semana?</div><textarea class="rev-ta" placeholder="Escreva livremente..."></textarea></div>
+    <div class="rev-q"><div class="rev-n">Pergunta 02</div><div class="rev-t">Qual emoção apareceu com mais frequência?</div><textarea class="rev-ta" placeholder="Escreva livremente..."></textarea></div>
+    <div class="rev-q"><div class="rev-n">Pergunta 03</div><div class="rev-t">O que você quer levar para a próxima semana?</div><textarea class="rev-ta" placeholder="Escreva livremente..."></textarea></div>
+    <button class="gold-btn" style="display:block;text-align:center;width:100%" onclick="saveRevisao()">Salvar Revisão ✦</button>
+  </div>
+</div>
+
+<!-- ══════════ CONQUISTAS ══════════ -->
+<div class="screen" id="s-conquistas">
+  <div class="ph" style="flex-shrink:0"><div><div class="ph-sm">Sua jornada</div><div class="ph-tt">Suas <em>Conquistas</em></div></div><div class="back" onclick="go('home')">←</div></div>
+  <div class="scroll" style="padding:12px 24px 88px;display:flex;flex-direction:column;gap:12px">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center">
+      <div style="background:var(--sur);border:1px solid var(--bor);border-radius:16px;padding:14px 8px"><div style="font-size:22px;margin-bottom:4px">💎</div><div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--gold)" id="totalXP">0</div><div style="font-size:9px;color:var(--mut)">XP Total</div></div>
+      <div style="background:var(--sur);border:1px solid var(--bor);border-radius:16px;padding:14px 8px"><div style="font-size:22px;margin-bottom:4px">🔥</div><div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--espi)" id="totalStreak">0</div><div style="font-size:9px;color:var(--mut)">Dias seguidos</div></div>
+      <div style="background:var(--sur);border:1px solid var(--bor);border-radius:16px;padding:14px 8px"><div style="font-size:22px;margin-bottom:4px">⚡</div><div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--mente)" id="totalMissions">0</div><div style="font-size:9px;color:var(--mut)">Missões feitas</div></div>
+    </div>
+    <div style="font-size:10px;color:var(--mut);letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding-top:4px">Bloqueadas — complete missões para desbloquear</div>
+    <div class="cq lk" data-cqid="primeira_faisca" onclick="openCq('🏆','Primeira Faísca','Conclua sua primeira missão no app. Esse será o primeiro passo de uma longa jornada de autoconhecimento.','💎 +50 XP · Ouro','primeira_faisca')"><div class="cmed cl2">🏆</div><div><div class="cq-t">Primeira Faísca</div><div class="cq-d">Conclua sua primeira missão.</div><div class="cq-x">💎 +50 XP · Ouro</div></div></div>
+    <div class="cq lk" data-cqid="guardia_silencio" onclick="openCq('🌙','Guardiã do Silêncio','12 dias consecutivos de meditação. Você encontrará o caminho de volta para si no silêncio.','💎 +120 XP · Ouro','guardia_silencio')"><div class="cmed cl2">🌙</div><div><div class="cq-t">Guardiã do Silêncio</div><div class="cq-d">12 dias consecutivos de meditação.</div><div class="cq-x">💎 +120 XP · Ouro</div></div></div>
+    <div class="cq lk" data-cqid="aprendiz_emocoes" onclick="openCq('🌊','Aprendiz das Emoções','Nomeie 5 emoções diferentes em uma semana. Sentir com clareza é a maior coragem.','💎 +80 XP · Prata','aprendiz_emocoes')"><div class="cmed cl2">🌊</div><div><div class="cq-t">Aprendiz das Emoções</div><div class="cq-d">Nomeie 5 emoções em uma semana.</div><div class="cq-x">💎 +80 XP · Prata</div></div></div>
+    <div class="cq lk" data-cqid="escritora_de_si" onclick="openCq('📓','Escritora de Si','3 entradas no diário em uma semana. Sua história merece ser registrada com cuidado.','💎 +60 XP · Bronze','escritora_de_si')"><div class="cmed cl2">📓</div><div><div class="cq-t">Escritora de Si</div><div class="cq-d">3 entradas no diário em uma semana.</div><div class="cq-x">💎 +60 XP · Bronze</div></div></div>
+    <div class="cq lk" data-cqid="ser_integrado" onclick="openCq('🔒','Ser Integrado','Atinja 80+ pts nos 4 pilares simultaneamente. O equilíbrio total é a conquista mais rara.','💎 +200 XP · Lendário','ser_integrado')"><div class="cmed cl2">🔒</div><div><div class="cq-t">Ser Integrado</div><div class="cq-d">Atinja 80+ pts nos 4 pilares simultaneamente.</div><div class="cq-x">💎 +200 XP · Lendário</div></div></div>
+    <div class="cq lk" data-cqid="trinta_dias" onclick="openCq('🔒','30 Dias de Equilíbrio','Complete o app por 30 dias seguidos. A consistência é a forma mais profunda de amor-próprio.','💎 +300 XP · Lendário','trinta_dias')"><div class="cmed cl2">🔒</div><div><div class="cq-t">30 Dias de Equilíbrio</div><div class="cq-d">Complete o app por 30 dias seguidos.</div><div class="cq-x">💎 +300 XP · Lendário</div></div></div>
+  </div>
+  <div class="cq-modal" id="cqModal" onclick="if(event.target===this)closeCq()">
+    <div class="cqbox"><span class="cqbox-med" id="cq-med"></span><div class="cqbox-tt" id="cq-tt"></div><div class="cqbox-d" id="cq-d"></div><div class="cqbox-xp" id="cq-xp"></div><button class="cqbox-claim" id="cq-claim-btn" onclick="claimConquistaXP()" style="display:none">✦ Reivindicar Recompensa</button><button class="cqbox-close" onclick="closeCq()">Fechar</button></div>
+  </div>
+</div>
+
+<!-- ══════════ BOTTOM NAV ══════════ -->
+<div class="bnav" id="mainNav" style="display:none">
+  <div class="ni active" id="nav-home" onclick="go('home')"><span class="ni-ic">🏠</span><span class="ni-lb">Início</span></div>
+  <div class="ni" id="nav-missoes" onclick="go('missoes')">
+    <div class="ni-wr"><span class="ni-ic">⚡</span><div class="ni-badge"></div></div>
+    <span class="ni-lb">Missões</span>
+  </div>
+  <div class="ni" id="nav-mapa" onclick="go('mapa')"><span class="ni-ic">🗺️</span><span class="ni-lb">Mapa</span></div>
+  <div class="ni" id="nav-conquistas" onclick="go('conquistas')"><span class="ni-ic">🏆</span><span class="ni-lb">Conquistas</span></div>
+  <div class="ni" id="nav-rank" onclick="go('rank')"><span class="ni-ic">🏅</span><span class="ni-lb">Rank</span></div>
+</div>
+
+<!-- ══════════ RANK ══════════ -->
+<div class="screen" id="s-rank">
+  <div class="ph" style="flex-shrink:0"><div><div class="ph-sm">Progresso</div><div class="ph-tt">Meu <em>Rank</em></div></div><div class="back" onclick="go('home')">←</div></div>
+  <div class="scroll">
+    <div class="rank-hero">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div class="rank-badge rank-lv1" id="rankBadge">🌱</div>
+        <div>
+          <div class="rank-title-lbl">Nível 1 · Semente</div>
+          <div class="rank-title-name">Início da <em>Jornada</em></div>
+          <div style="font-size:10px;color:var(--mut);margin-top:4px" id="rankDays">Primeiro dia · bem-vindo!</div>
+        </div>
+      </div>
+      <div class="rank-xp-bar-wr">
+        <div class="rank-xp-lbl"><span>0 XP acumulado</span><span>Próximo: 200 XP</span></div>
+        <div class="rank-xp-track"><div class="rank-xp-fill" id="xpFill" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="sl" style="margin-top:4px">Rank por Pilar</div>
+    <div class="rank-pillars">
+      <div class="rp rp-m"><div class="rp-ic">🧠</div><div class="rp-name">Saúde da Mente</div><div class="rp-rank">Nível 1</div><div class="rp-sub">0 XP · Iniciante</div><div class="rp-bar"><div class="rp-fill" style="width:0%"></div></div></div>
+      <div class="rp rp-e"><div class="rp-ic">🌊</div><div class="rp-name">Emoções</div><div class="rp-rank">Nível 1</div><div class="rp-sub">0 XP · Iniciante</div><div class="rp-bar"><div class="rp-fill" style="width:0%"></div></div></div>
+      <div class="rp rp-s"><div class="rp-ic">✦</div><div class="rp-name">Espiritualidade</div><div class="rp-rank">Nível 1</div><div class="rp-sub">0 XP · Iniciante</div><div class="rp-bar"><div class="rp-fill" style="width:0%"></div></div></div>
+      <div class="rp rp-f"><div class="rp-ic">🌿</div><div class="rp-name">Saúde Física</div><div class="rp-rank">Nível 1</div><div class="rp-sub">0 XP · Iniciante</div><div class="rp-bar"><div class="rp-fill" style="width:0%"></div></div></div>
+    </div>
+    <div class="sl" style="margin-top:4px">Caminho de Evolução</div>
+    <div class="rank-levels">
+      <div class="rl current"><div class="rl-ic rank-lv1" style="font-size:20px">🌱</div><div class="rl-info"><div class="rl-name">Lv 1 · Semente</div><div class="rl-req">0 XP · Início da jornada</div></div><div class="rl-badge rl-curr">← Você</div></div>
+      <div class="rl locked"><div class="rl-ic rank-lv2" style="font-size:20px">🌿</div><div class="rl-info"><div class="rl-name">Lv 2 · Brotando</div><div class="rl-req">200 XP · Primeiros passos</div></div><div class="rl-badge" style="background:var(--faint);border:1px solid var(--bor);color:var(--mut)">🔒 Bloq.</div></div>
+      <div class="rl locked"><div class="rl-ic rank-lv3" style="font-size:20px">🌊</div><div class="rl-info"><div class="rl-name">Lv 3 · Em Fluxo</div><div class="rl-req">500 XP · Consistência</div></div><div class="rl-badge" style="background:var(--faint);border:1px solid var(--bor);color:var(--mut)">🔒 Bloq.</div></div>
+      <div class="rl locked"><div class="rl-ic rank-lv4" style="font-size:20px">✦</div><div class="rl-info"><div class="rl-name">Lv 4 · Guardião</div><div class="rl-req">1.000 XP · Equilíbrio profundo</div></div><div class="rl-badge" style="background:var(--faint);border:1px solid var(--bor);color:var(--mut)">🔒 Bloq.</div></div>
+      <div class="rl locked"><div class="rl-ic rank-lv5" style="font-size:20px">🔮</div><div class="rl-info"><div class="rl-name">Lv 5 · Místico</div><div class="rl-req">1.500 XP · Transcendência</div></div><div class="rl-badge" style="background:var(--faint);border:1px solid var(--bor);color:var(--mut)">🔒 Bloq.</div></div>
+      <div class="rl locked"><div class="rl-ic rank-lv6" style="font-size:20px">👑</div><div class="rl-info"><div class="rl-name">Lv 6 · Iluminado</div><div class="rl-req">3.000 XP · Maestria total</div></div><div class="rl-badge" style="background:var(--faint);border:1px solid var(--bor);color:var(--mut)">🔒 Bloq.</div></div>
+    </div>
+    <div style="height:12px"></div>
+  </div>
+</div>
+
+</div><!-- /shell -->
+
+
+<script>
+// ══════════════════════════════════════════
+// SUPABASE
+// ══════════════════════════════════════════
+const SUPABASE_URL = 'https://okvherxcsloyllsripxq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_hLWnGVwM-iB5BKDTA_5w-w_5xLcSL2j';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: true, autoRefreshToken: true, storage: localStorage }
+});
+
+let currentUser = null;
+
+// ══════════════════════════════════════════
+// LOCAL DATA
+// ══════════════════════════════════════════
+function getKey(email){
+  try{ return 'vve_' + btoa(unescape(encodeURIComponent(email))); }
+  catch(e){ return 'vve_' + email.replace(/[^a-z0-9]/gi,'_'); }
+}
+function getUserData(email){
+  try{ return JSON.parse(localStorage.getItem(getKey(email)) || 'null'); }
+  catch(e){ return null; }
+}
+function saveUserData(email, data){
+  try{ localStorage.setItem(getKey(email), JSON.stringify(data)); }
+  catch(e){ console.warn('localStorage cheio:', e); }
+}
+function initUserData(name, email){
+  return {
+    name, email,
+    createdAt: Date.now(),
+    xp: 0,
+    missionsDone: 0,
+    checkins: [],
+    diaryEntries: [],
+    revisoes: [],
+    missionsByDay: {},
+    rotinas: {},
+    conquistasDesbloqueadas: [],
+    conquistasReivindicadas: [],
+    missionsXPClaimed: {},
+    selectedMissions: {m:[],e:[],s:[],f:[]},
+    missoesSemana: {}
+  };
+}
+
+// getData com migração robusta
+function getData(){
+  if(!currentUser) return null;
+  let d = getUserData(currentUser.email);
+  if(!d){
+    d = initUserData(currentUser.name, currentUser.email);
+    saveUserData(currentUser.email, d);
+    return d;
+  }
+  let dirty = false;
+  // Garantir todos os campos
+  if(!d.missionsByDay)           { d.missionsByDay = {};        dirty = true; }
+  if(!d.conquistasDesbloqueadas) { d.conquistasDesbloqueadas = []; dirty = true; }
+  if(!d.conquistasReivindicadas) { d.conquistasReivindicadas = []; dirty = true; }
+  if(!d.missionsXPClaimed)       { d.missionsXPClaimed = {};    dirty = true; }
+  if(!d.rotinas)                 { d.rotinas = {};              dirty = true; }
+  if(!d.revisoes)                { d.revisoes = [];             dirty = true; }
+  if(!d.diaryEntries)            { d.diaryEntries = [];         dirty = true; }
+  if(!d.checkins)                { d.checkins = [];             dirty = true; }
+  if(!d.selectedMissions)        { d.selectedMissions = {m:[],e:[],s:[],f:[]}; dirty = true; }
+  if(!d.missoesSemana)           { d.missoesSemana = {};                        dirty = true; }
+  if(!d.missoesConcluidas)       { d.missoesConcluidas = {};                    dirty = true; }
+  if(!d.rotinasCustom)           { d.rotinasCustom = {m:[],t:[],n:[]};          dirty = true; }
+  if(!d.rotinasLog)              { d.rotinasLog = {};                            dirty = true; }
+  if(typeof d.missionsDone !== 'number') { d.missionsDone = 0; dirty = true; }
+  // Migrar missionsClaimable antigo
+  if(d.missionsClaimable){
+    delete d.missionsClaimable;
+    dirty = true;
+  }
+  if(dirty) saveUserData(currentUser.email, d);
+  return d;
+}
+function saveData(d){
+  if(!currentUser || !d) return;
+  saveUserData(currentUser.email, d);
+}
+
+// ══════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════
+function setAuthLoading(form, loading){
+  const btn = document.getElementById('btn-' + form);
+  const load = document.getElementById(form + '-loading');
+  if(btn) btn.style.display = loading ? 'none' : 'block';
+  if(load) load.classList.toggle('show', loading);
+}
+function switchAuth(t){
+  ['login','signup'].forEach(tab => {
+    const el = document.getElementById('tab-' + tab);
+    if(el) el.classList.toggle('active', tab === t);
+  });
+  document.getElementById('form-login').style.display  = t==='login'  ? 'block':'none';
+  document.getElementById('form-signup').style.display = t==='signup' ? 'block':'none';
+  document.getElementById('form-forgot').style.display = t==='forgot' ? 'block':'none';
+  ['login-err','signup-err','forgot-err','login-ok','forgot-ok'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.classList.remove('show');
+  });
+}
+function showErr(id, msg){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.textContent = msg; el.classList.add('show');
+}
+
+async function doLogin(){
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const pass  = document.getElementById('login-pass').value;
+  if(!email||!pass){ showErr('login-err','Preencha todos os campos.'); return; }
+  setAuthLoading('login',true);
+  const {data,error} = await sb.auth.signInWithPassword({email, password:pass});
+  setAuthLoading('login',false);
+  if(error){
+    let msg = 'Erro ao entrar. Tente novamente.';
+    if(error.message.includes('Invalid login')||error.message.includes('invalid_credentials'))
+      msg = 'E-mail ou senha incorretos.';
+    else if(error.message.includes('Email not confirmed'))
+      msg = 'Confirme seu e-mail antes de entrar.';
+    showErr('login-err', msg); return;
+  }
+  loginSuccess(data.user.email, data.user.user_metadata?.name || email.split('@')[0]);
+}
+
+async function doSignup(){
+  const name  = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim().toLowerCase();
+  const pass  = document.getElementById('signup-pass').value;
+  if(!name||!email||!pass){ showErr('signup-err','Preencha todos os campos.'); return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showErr('signup-err','E-mail inválido.'); return; }
+  if(pass.length<6){ showErr('signup-err','Senha precisa ter pelo menos 6 caracteres.'); return; }
+  const btnS = document.getElementById('btn-signup');
+  if(btnS) btnS.disabled = true;
+  const {data,error} = await sb.auth.signUp({
+    email, password:pass,
+    options:{ data:{name}, emailRedirectTo: window.location.href }
+  });
+  if(btnS) btnS.disabled = false;
+  if(error){
+    let msg = 'Erro: '+error.message;
+    if(error.message.includes('already registered')||error.message.includes('User already registered'))
+      msg = 'Esse e-mail já está cadastrado.';
+    if(error.message.includes('over_email_send_rate_limit'))
+      msg = 'Muitas tentativas. Aguarde alguns minutos.';
+    showErr('signup-err', msg); return;
+  }
+  if(!getUserData(email)) saveUserData(email, initUserData(name, email));
+  if(data.session){ loginSuccess(email, name); return; }
+  const {data:ld} = await sb.auth.signInWithPassword({email, password:pass});
+  if(ld?.session){ loginSuccess(email, name); return; }
+  const ok = document.getElementById('signup-err');
+  if(ok){
+    ok.textContent='✅ Conta criada! Verifique seu e-mail para confirmar.';
+    ok.style.cssText+=';color:#6BBF8E;background:rgba(107,191,142,.1);border:1px solid rgba(107,191,142,.3)';
+    ok.classList.add('show');
+  }
+}
+
+async function doForgotPass(){
+  const email = document.getElementById('forgot-email').value.trim().toLowerCase();
+  if(!email){ showErr('forgot-err','Digite seu e-mail.'); return; }
+  setAuthLoading('forgot',true);
+  const {error} = await sb.auth.resetPasswordForEmail(email,{
+    redirectTo: window.location.origin + window.location.pathname
+  });
+  setAuthLoading('forgot',false);
+  if(error){ showErr('forgot-err','Erro ao enviar. Verifique o e-mail.'); return; }
+  const ok=document.getElementById('forgot-ok');
+  if(ok){ ok.textContent='✅ Link enviado! Verifique sua caixa de entrada.'; ok.classList.add('show'); }
+}
+
+function loginSuccess(email, name){
+  currentUser = { email, name: name||email.split('@')[0] };
+  if(!getUserData(email)) saveUserData(email, initUserData(currentUser.name, email));
+  assignMissionIds();
+  document.getElementById('authWrap').classList.add('hidden');
+  document.getElementById('mainNav').style.display = 'flex';
+  loadUserIntoApp();
+  go('home');
+}
+
+async function doLogout(){
+  await sb.auth.signOut();
+  currentUser = null;
+  closeProfileMenu();
+  document.getElementById('mainNav').style.display = 'none';
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none';});
+  document.getElementById('authWrap').classList.remove('hidden');
+  ['totalXP','totalMissions','totalStreak'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.textContent='0';
+  });
+  document.getElementById('homeUserName').textContent='...';
+  const list=document.getElementById('diaryList');
+  if(list) list.innerHTML='<div style="text-align:center;padding:24px 0;color:var(--mut);font-size:12px">Faça login para ver suas entradas.</div>';
+}
+
+function loadUserIntoApp(){
+  if(!currentUser) return;
+  document.getElementById('homeUserName').textContent = currentUser.name.split(' ')[0];
+  document.getElementById('profileEmail').textContent = currentUser.email;
+  const data = getData();
+  const xp     = data.xp || 0;
+  const streak = calcStreak(data.checkins || []);
+  document.querySelectorAll('#totalXP').forEach(el=>el.textContent=xp);
+  document.querySelectorAll('#totalMissions').forEach(el=>el.textContent=data.missionsDone||0);
+  document.querySelectorAll('#totalStreak').forEach(el=>el.textContent=streak);
+  updateRank(xp);
+  updateEquilibrio(data);
+  updateMissionsUI(data);
+  renderMissionsState(data);
+  // Verificar conquistas silenciosamente (sem toast) mas atualizar visual
+  checkConquistas(data, true);
+  loadRotinas(data);
+  buildHomeChart();
+}
+
+function toggleProfileMenu(){ document.getElementById('profileMenu').classList.toggle('open'); }
+function closeProfileMenu(){ document.getElementById('profileMenu').classList.remove('open'); }
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#profileBtn')&&!e.target.closest('#profileMenu')) closeProfileMenu();
+});
+
+// Verificar sessão
+(async function initSession(){
+  try{
+    const {data:{session}} = await sb.auth.getSession();
+    if(session?.user){
+      const u = session.user;
+      loginSuccess(u.email, u.user_metadata?.name||u.email.split('@')[0]);
+    } else {
+      document.getElementById('authWrap').classList.remove('hidden');
+    }
+  } catch(e){
+    document.getElementById('authWrap').classList.remove('hidden');
+  }
+})();
+
+sb.auth.onAuthStateChange((event, session)=>{
+  if(event==='SIGNED_IN' && session && !currentUser){
+    loginSuccess(session.user.email, session.user.user_metadata?.name||session.user.email.split('@')[0]);
+  }
+});
+
+// ══════════════════════════════════════════
+// NAVEGAÇÃO
+// ══════════════════════════════════════════
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>{
+    s.classList.remove('active'); s.style.display='none';
+  });
+  const scr = document.getElementById('s-'+id);
+  if(scr){ scr.style.display='flex'; scr.classList.add('active'); }
+  const scrollEl = document.querySelector('#s-'+id+' .scroll');
+  if(scrollEl) scrollEl.scrollTop=0;
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  const navMap = {home:'home',missoes:'missoes',mapa:'mapa',conquistas:'conquistas',rank:'rank'};
+  const navKey = navMap[id];
+  if(navKey){ const nav=document.getElementById('nav-'+navKey); if(nav) nav.classList.add('active'); }
+
+  if(id==='praticas'){
+    document.querySelectorAll('.prat').forEach(p=>{
+      p.classList.remove('anim-in'); void p.offsetWidth; p.classList.add('anim-in');
+    });
+  }
+  if(id==='rank')   animateRankBars();
+  if(id==='diario') renderDiary();
+
+  if(!currentUser) return;
+  const data = getData();
+  if(!data) return;
+
+  if(id==='home')       { buildHomeChart(); updateEquilibrio(getData()); }
+  if(id==='mapa')       { updateEquilibrio(getData()); }
+  if(id==='rotinas')    { loadRotinas(getData()); }
+  if(id==='missoes')    { const d=getData(); switchMissTab('m'); updateEquilibrio(d); }
+  if(id==='conquistas') { checkConquistas(getData(), true); }
+  if(id==='revisao')    { updateEquilibrio(getData()); }
+}
+
+// ══════════════════════════════════════════
+// STREAK
+// ══════════════════════════════════════════
+function calcStreak(checkins){
+  if(!checkins||checkins.length===0) return 0;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const days = new Set(checkins.map(c=>{
+    const d=new Date(c.date); d.setHours(0,0,0,0); return d.getTime();
+  }));
+  let streak=0;
+  const start = days.has(today.getTime())?0:1;
+  for(let i=start;i<365;i++){
+    const d=new Date(today); d.setDate(today.getDate()-i);
+    if(days.has(d.getTime())) streak++;
+    else break;
+  }
+  return streak;
+}
+function updateStreakDisplay(streak){
+  document.querySelectorAll('#totalStreak').forEach(el=>el.textContent=streak);
+  const rd=document.getElementById('rankDays');
+  if(rd) rd.textContent = streak===0 ? 'Primeiro dia · bem-vindo!' : streak+' dia'+(streak>1?'s':'')+' de jornada 🔥';
+}
+
+// ══════════════════════════════════════════
+// HOME CHART — baseado em missões
+// ══════════════════════════════════════════
+function buildHomeChart(){
+  const ch=document.getElementById('homeChart');
+  if(!ch) return;
+  ch.innerHTML='';
+  const diasPt=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const data=currentUser?getData():null;
+  const mbd=(data&&data.missionsByDay)||{};
+
+  // Pegar a segunda-feira da semana atual
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const dow = hoje.getDay();
+  const diffToMon = (dow===0)?-6:1-dow;
+  const seg = new Date(hoje); seg.setDate(hoje.getDate()+diffToMon);
+
+  // Gerar os 7 dias da semana: Seg a Dom
+  for(let i=0;i<7;i++){
+    const d = new Date(seg); d.setDate(seg.getDate()+i);
+    const dk = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const done = (mbd[dk]||[]).length;
+    const pct = Math.min(100,Math.round((done/16)*100));
+    const h = Math.max(4,Math.round((pct/100)*42));
+    const isToday = dk===todayKey();
+    const isFuture = d > hoje;
+    ch.innerHTML+=`<div class="cd ${isToday?'tod':''}"><div class="cb" style="height:${h}px;opacity:${isFuture?0.1:done>0?1:.22}"></div><div class="cl">${diasPt[d.getDay()]}</div></div>`;
+  }
+}
+
+// ══════════════════════════════════════════
+// MISSÕES — banco de dados completo
+// ══════════════════════════════════════════
+const MISSOES_DB = {
+  m: [
+    {id:'m01',t:'5 min de respiração focada',d:'Observe um objeto com atenção total. Quando a mente divagar, retorne.',dur:'5 min',xp:20},
+    {id:'m02',t:'Pausa digital de 30 minutos',d:'Sem telas, sem notificações. Deixe a mente descansar e reorganizar.',dur:'30 min',xp:25},
+    {id:'m03',t:'Leitura lenta: 10 páginas',d:'Leia sem pressa, sublinhe uma frase que tocou você.',dur:'20 min',xp:30},
+    {id:'m04',t:'Aprenda algo novo em 15 min',d:'Um conceito, idioma ou instrumento — ativa a neuroplasticidade.',dur:'15 min',xp:50},
+    {id:'m05',t:'Journaling cognitivo',d:'Escreva um pensamento recorrente e questione sua veracidade.',dur:'10 min',xp:30},
+    {id:'m06',t:'Técnica Pomodoro (25/5)',d:'25 min de foco total + 5 min de pausa. Repita 2x.',dur:'60 min',xp:40},
+    {id:'m07',t:'Escreva 3 ideias criativas',d:'Sem julgamento, sem filtro. Apenas deixe fluir o pensamento.',dur:'10 min',xp:25},
+    {id:'m08',t:'Resolva um problema por escrito',d:'Defina o problema, liste 3 soluções possíveis e escolha uma.',dur:'15 min',xp:35},
+    {id:'m09',t:'Revisão mental do dia',d:'O que aprendi hoje? O que faria diferente?',dur:'5 min',xp:20},
+    {id:'m10',t:'Meditação de atenção plena',d:'10 min observando pensamentos sem se identificar com eles.',dur:'10 min',xp:30},
+    {id:'m11',t:'Ouça um podcast educativo',d:'Escolha algo que expanda sua visão de mundo.',dur:'20 min',xp:25},
+    {id:'m12',t:'Faça um mapa mental',d:'Escolha um tema e ramifique ideias livremente.',dur:'15 min',xp:30},
+    {id:'m13',t:'Escreva sua intenção do dia',d:'Uma frase sobre como você quer estar presente hoje.',dur:'3 min',xp:15},
+    {id:'m14',t:'Pratique a memória',d:'Memorize 10 palavras novas em outro idioma.',dur:'10 min',xp:30},
+    {id:'m15',t:'Reflexão sobre uma crença limitante',d:'Identifique uma crença e desafie sua origem.',dur:'10 min',xp:40},
+    {id:'m16',t:'Leia sobre um tema novo',d:'Explore uma área que você nunca estudou antes.',dur:'15 min',xp:25},
+    {id:'m17',t:'Desafio do silêncio mental',d:'Tente 5 min sem verbalizações internas. Apenas sinta.',dur:'5 min',xp:35},
+    {id:'m18',t:'Resolva um quebra-cabeça lógico',d:'Um sudoku, palavras cruzadas ou charada.',dur:'15 min',xp:25},
+    {id:'m19',t:'Escreva uma carta ao seu futuro eu',d:'Como você se imagina em 5 anos? O que quer dizer a essa pessoa?',dur:'15 min',xp:40},
+    {id:'m20',t:'Planejamento consciente do amanhã',d:'Liste 3 prioridades de amanhã antes de dormir.',dur:'5 min',xp:20},
+    {id:'m21',t:'Leia um artigo científico',d:'Escolha qualquer área — o hábito de leitura profunda fortalece o foco.',dur:'20 min',xp:35},
+    {id:'m22',t:'Prática de visualização positiva',d:'Feche os olhos e visualize seu dia ideal por 5 min.',dur:'5 min',xp:20},
+    {id:'m23',t:'Debata consigo mesmo',d:'Escolha uma opinião sua e construa o argumento contrário.',dur:'10 min',xp:35},
+    {id:'m24',t:'Organize um espaço mental',d:'Liste pendências mentais e as coloque num papel. Libere a mente.',dur:'10 min',xp:25},
+    {id:'m25',t:'Estude sua área de interesse',d:'30 min de estudo profundo no que você ama.',dur:'30 min',xp:40},
+    {id:'m26',t:'Exercício de foco mono-tarefa',d:'Faça uma única coisa de cada vez durante 1 hora.',dur:'60 min',xp:45},
+    {id:'m27',t:'Diário de sonhos',d:'Ao acordar, escreva o que lembrar dos sonhos.',dur:'5 min',xp:20},
+    {id:'m28',t:'Crie algo do zero',d:'Um texto, um desenho, uma receita — qualquer criação original.',dur:'20 min',xp:40},
+    {id:'m29',t:'Reflita sobre um livro lido',d:'Escolha um livro e escreva o que ficou de ensinamento.',dur:'10 min',xp:30},
+    {id:'m30',t:'Pratique a escrita rápida',d:'Escreva por 10 min sem parar sobre qualquer tema.',dur:'10 min',xp:25},
+    {id:'m31',t:'Aprenda sobre filosofia ou estoicismo',d:'Uma citação, um conceito — aplique ao seu dia.',dur:'10 min',xp:30},
+    {id:'m32',t:'Reduza o consumo de informação',d:'Fique 2h sem consumir conteúdo externo. Apenas crie.',dur:'120 min',xp:45},
+    {id:'m33',t:'Mindful eating: refeição consciente',d:'Coma uma refeição sem telas. Observe sabores e texturas.',dur:'20 min',xp:25},
+    {id:'m34',t:'Escreva 3 pensamentos que ocuparam a mente',d:'Sem julgamento — apenas observação e registro.',dur:'5 min',xp:20},
+    {id:'m35',t:'Desafio de memória visual',d:'Observe uma cena por 1 min, feche os olhos e reconstrua.',dur:'5 min',xp:25},
+    {id:'m36',t:'Converse com alguém sobre algo profundo',d:'Vá além do superficial. Troque ideias de verdade.',dur:'20 min',xp:35},
+    {id:'m37',t:'Crie um plano de 30 dias',d:'Para qualquer meta pessoal. Não precisa ser perfeito.',dur:'15 min',xp:40},
+    {id:'m38',t:'Leia antes de dormir (não tela)',d:'Um livro físico ou e-reader sem luz azul.',dur:'20 min',xp:25},
+    {id:'m39',t:'Pense em 3 problemas do mundo',d:'E escreva uma ideia, por mais simples que seja, para cada.',dur:'10 min',xp:30},
+    {id:'m40',t:'Pratique a atenção aos detalhes',d:'Observe 10 detalhes no ambiente que você nunca notou.',dur:'5 min',xp:20},
+  ],
+  e: [
+    {id:'e01',t:'Carta para uma emoção difícil',d:'Escreva para uma emoção que evita, como se fosse uma pessoa.',dur:'10 min',xp:35},
+    {id:'e02',t:'Abraço regulador de 20 segundos',d:'Libera ocitocina e regula o sistema nervoso.',dur:'1 min',xp:20},
+    {id:'e03',t:'Prática de autocompaixão',d:'Mão no peito: "Estou passando por algo difícil. Isso é humano."',dur:'3 min',xp:25},
+    {id:'e04',t:'Diga o que sente a alguém',d:'Com vulnerabilidade e cuidado, expresse uma emoção verdadeira.',dur:'livre',xp:60},
+    {id:'e05',t:'Nomeie sua emoção do momento',d:'Não "ruim" — talvez "frustração", "melancolia", "ansiedade leve".',dur:'2 min',xp:15},
+    {id:'e06',t:'Roda das emoções',d:'Identifique em qual família emocional você está agora.',dur:'5 min',xp:20},
+    {id:'e07',t:'Chore se precisar',d:'O choro é regulação, não fraqueza. Não reprima se vier.',dur:'livre',xp:30},
+    {id:'e08',t:'Gratidão para alguém real',d:'Envie uma mensagem de gratidão genuína a alguém hoje.',dur:'5 min',xp:30},
+    {id:'e09',t:'Identifique o gatilho da emoção',d:'O que disparou o que você está sentindo? Quando começou?',dur:'5 min',xp:25},
+    {id:'e10',t:'Escreva sobre um medo',d:'Nomeie o medo, de onde vem e o que ele tenta te proteger.',dur:'10 min',xp:35},
+    {id:'e11',t:'Celebrate uma pequena vitória',d:'Reconheça algo que você fez bem hoje, por menor que seja.',dur:'2 min',xp:15},
+    {id:'e12',t:'Técnica EFT (tapping)',d:'5 min de tapping nos pontos principais enquanto nomeia a emoção.',dur:'5 min',xp:30},
+    {id:'e13',t:'Escreva o que você não quer mais sentir',d:'E o que precisa mudar para isso acontecer.',dur:'10 min',xp:35},
+    {id:'e14',t:'Identifique uma emoção no corpo',d:'Onde no corpo você sente alegria? Medo? Paz?',dur:'5 min',xp:20},
+    {id:'e15',t:'Ato de bondade espontâneo',d:'Faça algo gentil por alguém sem esperar retorno.',dur:'livre',xp:30},
+    {id:'e16',t:'Diário emocional do dia',d:'Como você se sentiu de manhã, tarde e noite? Escreva.',dur:'10 min',xp:25},
+    {id:'e17',t:'Pratique limites saudáveis',d:'Diga não a algo hoje que normalmente diria sim por obrigação.',dur:'livre',xp:40},
+    {id:'e18',t:'Escuta ativa com alguém',d:'Ouça de verdade. Sem pensar na resposta enquanto escuta.',dur:'15 min',xp:30},
+    {id:'e19',t:'Meditação de amor-bondade',d:'5 min desejando bem a você, a alguém próximo e a alguém difícil.',dur:'5 min',xp:30},
+    {id:'e20',t:'Identifique uma projeção',d:'Algo que irrita em outro — existe em você também?',dur:'5 min',xp:35},
+    {id:'e21',t:'Escreva sobre uma relação importante',d:'O que ela te ensina? O que você contribui?',dur:'10 min',xp:30},
+    {id:'e22',t:'Respire antes de reagir',d:'Hoje, toda vez que sentir irritação, respire 3x antes de falar.',dur:'dia todo',xp:40},
+    {id:'e23',t:'Perdoe algo pequeno hoje',d:'Uma falha sua ou de outro. Escreva a decisão de perdoar.',dur:'5 min',xp:35},
+    {id:'e24',t:'Valide suas próprias emoções',d:'Diga: "Faz sentido sentir isso. Não preciso me julgar."',dur:'2 min',xp:20},
+    {id:'e25',t:'Dançe por 5 minutos',d:'Movimento libera emoções presas. Deixe o corpo expressar.',dur:'5 min',xp:25},
+    {id:'e26',t:'Escreva sobre seu amor próprio',d:'O que você genuinamente ama em si mesmo?',dur:'10 min',xp:30},
+    {id:'e27',t:'Trace seu histórico emocional',d:'Que emoção tem dominado sua semana? Mês? Ano?',dur:'10 min',xp:35},
+    {id:'e28',t:'Abrace a incerteza',d:'Escreva algo incerto que você aceita sem saber o resultado.',dur:'5 min',xp:30},
+    {id:'e29',t:'Pratique o não julgamento',d:'Observe seus pensamentos sem rotulá-los de bons ou ruins.',dur:'5 min',xp:25},
+    {id:'e30',t:'Descreva um momento de alegria pura',d:'O que foi? Onde estava? O que sentiu no corpo?',dur:'5 min',xp:20},
+    {id:'e31',t:'Escreva sobre saudade',d:'De quem ou do quê você sente saudade? O que isso te diz?',dur:'10 min',xp:30},
+    {id:'e32',t:'Peça desculpas a alguém',d:'Por algo que você sabe que magoou, mesmo que pequeno.',dur:'livre',xp:45},
+    {id:'e33',t:'Observe sua crítica interna',d:'Que voz surge quando você erra? De onde vem esse tom?',dur:'5 min',xp:30},
+    {id:'e34',t:'Faça algo que dá prazer',d:'Sem culpa. Só porque você merece.',dur:'20 min',xp:25},
+    {id:'e35',t:'Trace o mapa das suas emoções da semana',d:'Um por dia — ao final terá um retrato emocional real.',dur:'5 min',xp:20},
+    {id:'e36',t:'Escreva sobre raiva sem se julgar',d:'O que a raiva está tentando proteger em você?',dur:'10 min',xp:35},
+    {id:'e37',t:'Identifique uma necessidade não atendida',d:'Por trás de cada emoção difícil há uma necessidade. Qual é a sua?',dur:'5 min',xp:30},
+    {id:'e38',t:'Pratique a escuta do próprio coração',d:'Em silêncio, pergunte: "O que eu realmente preciso agora?"',dur:'5 min',xp:25},
+    {id:'e39',t:'Escreva 3 emoções positivas do dia',d:'Por mais sutil que seja, algo bom sempre existe.',dur:'5 min',xp:20},
+    {id:'e40',t:'Aceite uma emoção sem tentar mudá-la',d:'Sente por 5 min sem estratégia de fuga. Apenas presença.',dur:'5 min',xp:35},
+  ],
+  s: [
+    {id:'s01',t:'Meditação de 10 minutos',d:'Observe a respiração sem técnica específica.',dur:'10 min',xp:30},
+    {id:'s02',t:'3 gratidões específicas',d:'Não "minha família" — o que aconteceu hoje que foi bom?',dur:'5 min',xp:20},
+    {id:'s03',t:'Momento de silêncio intencional',d:'5 min sem música, sem podcast. Apenas presença.',dur:'5 min',xp:15},
+    {id:'s04',t:'Escreva sobre seu propósito',d:'O que te faz sentir que está vivendo com sentido?',dur:'15 min',xp:70},
+    {id:'s05',t:'Contemplação na natureza',d:'20 min ao ar livre sem telefone, apenas observando.',dur:'20 min',xp:35},
+    {id:'s06',t:'Reze ou ore à sua maneira',d:'Seja como for — o que importa é a conexão com algo maior.',dur:'5 min',xp:20},
+    {id:'s07',t:'Leia algo sagrado ou filosófico',d:'Um versículo, provérbio ou ensinamento que ressoe.',dur:'10 min',xp:25},
+    {id:'s08',t:'Ato de serviço anônimo',d:'Faça algo por alguém sem que ninguém saiba.',dur:'livre',xp:45},
+    {id:'s09',t:'Contemplação de uma obra de arte',d:'Olhe para uma pintura, música ou poema com atenção total.',dur:'10 min',xp:25},
+    {id:'s10',t:'Escreva sobre o que te maravilha',d:'O que, quando você pensa, te enche de admiração pelo universo?',dur:'10 min',xp:30},
+    {id:'s11',t:'Prática de desapego',d:'Libere mentalmente algo a que você está se agarrando.',dur:'5 min',xp:35},
+    {id:'s12',t:'Observe o céu por 5 minutos',d:'Nuvens, estrelas, azul — o ver sem nomear é contemplação.',dur:'5 min',xp:20},
+    {id:'s13',t:'Acenda uma vela com intenção',d:'Um ritual simples de presença e clareza.',dur:'5 min',xp:15},
+    {id:'s14',t:'Escreva sobre seus valores',d:'O que guia suas decisões? O que você não abrirá mão?',dur:'15 min',xp:40},
+    {id:'s15',t:'Pratique a impermanência',d:'Pense em algo que mudou na sua vida. O que essa mudança ensinou?',dur:'5 min',xp:25},
+    {id:'s16',t:'Meditação caminhante',d:'10 min andando com atenção total a cada passo.',dur:'10 min',xp:25},
+    {id:'s17',t:'Escreva uma oração pessoal',d:'Com suas palavras, para o que você acredita.',dur:'5 min',xp:20},
+    {id:'s18',t:'Pratique a compaixão universal',d:'Pense em alguém que sofre e deseje sinceramente bem.',dur:'5 min',xp:30},
+    {id:'s19',t:'Leia sobre uma tradição espiritual nova',d:'Apenas para expandir — sem precisar adotar.',dur:'15 min',xp:25},
+    {id:'s20',t:'Escreva sobre morte e legado',d:'O que você quer que digam sobre você?',dur:'10 min',xp:40},
+    {id:'s21',t:'Faça um altar ou espaço sagrado',d:'Um canto com objetos que tenham significado para você.',dur:'15 min',xp:30},
+    {id:'s22',t:'Medite sobre uma pergunta sem resposta',d:'Fica com a pergunta — não busque a resposta.',dur:'10 min',xp:35},
+    {id:'s23',t:'Observe a beleza no ordinário',d:'O que é belo no cotidiano que você ignora?',dur:'5 min',xp:20},
+    {id:'s24',t:'Pratique a presença radical',d:'Por 1h, esteja 100% onde você está. Sem devaneio.',dur:'60 min',xp:45},
+    {id:'s25',t:'Escreva sobre sincronicidade',d:'Algo que parecia "coincidência" mas carregou mensagem.',dur:'10 min',xp:30},
+    {id:'s26',t:'Pratique o descanso sagrado',d:'Deite sem culpa. O descanso é espiritual, não preguiça.',dur:'20 min',xp:25},
+    {id:'s27',t:'Visualize sua versão mais elevada',d:'Como seria você vivendo no seu potencial máximo?',dur:'10 min',xp:35},
+    {id:'s28',t:'Escreva sobre gratidão profunda',d:'Algo que só depois de muito tempo você conseguiu agradecer.',dur:'10 min',xp:35},
+    {id:'s29',t:'Pratique a entrega',d:'Deixe algo que você tenta controlar ir. Por hoje.',dur:'5 min',xp:30},
+    {id:'s30',t:'Conecte-se com sua ancestralidade',d:'Pense em seus antepassados. O que carrega deles?',dur:'10 min',xp:30},
+    {id:'s31',t:'Cante ou entoe um mantra',d:'Qualquer som repetido com intenção é mantra.',dur:'5 min',xp:20},
+    {id:'s32',t:'Observe a lua ou as estrelas',d:'Conexão com o cosmos recalibra a perspectiva.',dur:'5 min',xp:20},
+    {id:'s33',t:'Pratique o "não saber"',d:'Repita: "Não sei tudo. E tudo bem."',dur:'3 min',xp:20},
+    {id:'s34',t:'Escreva sobre perdão espiritual',d:'Quem ou o que você precisa liberar com amor?',dur:'10 min',xp:40},
+    {id:'s35',t:'Leia poesia com atenção',d:'Um poema — lido devagar, como reza.',dur:'10 min',xp:25},
+    {id:'s36',t:'Pratique a escuta do silêncio',d:'O que o silêncio comunica quando você para de fugir?',dur:'5 min',xp:25},
+    {id:'s37',t:'Escreva sobre o sagrado no cotidiano',d:'Onde você encontra o divino no dia a dia?',dur:'10 min',xp:30},
+    {id:'s38',t:'Meditação de abertura do coração',d:'10 min visualizando luz verde no centro do peito.',dur:'10 min',xp:30},
+    {id:'s39',t:'Pratique a simplicidade',d:'Elimine uma complicação desnecessária da sua vida hoje.',dur:'10 min',xp:25},
+    {id:'s40',t:'Escreva sobre seu chamado',d:'O que você acredita que veio fazer nessa vida?',dur:'15 min',xp:50},
+  ],
+  f: [
+    {id:'f01',t:'2 litros de água ao longo do dia',d:'Hidratação como ritual de cuidado.',dur:'dia todo',xp:15},
+    {id:'f02',t:'Caminhada de 20 minutos ao ar livre',d:'Sem fone, sem pressa. O corpo precisa de movimento.',dur:'20 min',xp:30},
+    {id:'f03',t:'Dormir antes da meia-noite',d:'Sem telas 30 min antes. Ritual de desaceleração.',dur:'noturno',xp:40},
+    {id:'f04',t:'Uma refeição com atenção plena',d:'Sem telas, sem pressa. Sinta cada mordida.',dur:'30 min',xp:45},
+    {id:'f05',t:'Alongamento de 10 minutos',d:'Especialmente pescoço, ombros e lombar.',dur:'10 min',xp:20},
+    {id:'f06',t:'Exercício por 30 minutos',d:'Qualquer modalidade que você goste.',dur:'30 min',xp:35},
+    {id:'f07',t:'Respiração diafragmática',d:'10 respirações profundas pelo ventre. Ativa o nervo vago.',dur:'5 min',xp:20},
+    {id:'f08',t:'Banho frio ou alternado',d:'30 seg de água fria ao final do banho. Energizante.',dur:'5 min',xp:25},
+    {id:'f09',t:'Cuide da postura por 1h',d:'Ombros baixos, coluna ereta, pés no chão.',dur:'60 min',xp:20},
+    {id:'f10',t:'Refeição sem ultraprocessados',d:'Uma refeição integralmente natural hoje.',dur:'livre',xp:30},
+    {id:'f11',t:'Pausa ativa a cada hora',d:'Levante e mova por 2 min a cada hora sentado.',dur:'dia todo',xp:25},
+    {id:'f12',t:'Cuide da saúde bucal',d:'Escovação + fio + limpeza de língua.',dur:'5 min',xp:10},
+    {id:'f13',t:'Yoga ou mobilidade',d:'20 min de movimentos intencionais e suaves.',dur:'20 min',xp:30},
+    {id:'f14',t:'Dança livre por 5 minutos',d:'Uma música que você ama. Mova o corpo sem julgamento.',dur:'5 min',xp:25},
+    {id:'f15',t:'Sol matinal por 10 minutos',d:'Sem óculos escuros. Regula circadiano e vitamina D.',dur:'10 min',xp:20},
+    {id:'f16',t:'Jejum de 12 horas',d:'Deixe o sistema digestivo descansar.',dur:'12h',xp:35},
+    {id:'f17',t:'Treinamento de força',d:'Musculação ou exercícios com peso corporal.',dur:'30 min',xp:35},
+    {id:'f18',t:'Natação ou exercício aquático',d:'Gentil para as articulações e tonificante.',dur:'30 min',xp:35},
+    {id:'f19',t:'Cuide das mãos e pés',d:'Hidratação, massagem, cuidado com quem te sustenta.',dur:'10 min',xp:15},
+    {id:'f20',t:'Coma mais vegetais hoje',d:'Metade do prato: vegetais coloridos.',dur:'livre',xp:20},
+    {id:'f21',t:'Massagem ou automassagem',d:'10 min de automassagem nos pontos de tensão.',dur:'10 min',xp:25},
+    {id:'f22',t:'Nap consciente de 20 min',d:'Um cochilo curto restaura foco e energia.',dur:'20 min',xp:20},
+    {id:'f23',t:'Reduza a cafeína hoje',d:'Máximo 1 café. Observe como o corpo reage.',dur:'dia todo',xp:25},
+    {id:'f24',t:'Caminhada descalço na grama',d:'Grounding: contato direto com a terra.',dur:'10 min',xp:20},
+    {id:'f25',t:'Higiene do sono: prepare o quarto',d:'Escuro, fresco, sem telas 1h antes.',dur:'livre',xp:25},
+    {id:'f26',t:'Exercício aeróbico leve',d:'Bicicleta, caminhada rápida, corda — eleva o humor.',dur:'20 min',xp:30},
+    {id:'f27',t:'Beba chá herbal',d:'Camomila, erva-cidreira, ashwagandha — sem cafeína.',dur:'5 min',xp:10},
+    {id:'f28',t:'Cozinhe uma refeição do zero',d:'Sem delivery, sem industrializado. Presença na cozinha.',dur:'30 min',xp:30},
+    {id:'f29',t:'Cuide dos seus olhos',d:'Regra 20-20-20: a cada 20 min, olhe 20s para 6m de distância.',dur:'dia todo',xp:20},
+    {id:'f30',t:'Pratique respiração 4-7-8',d:'4 inspirar, 7 segurar, 8 expirar. 4 ciclos.',dur:'5 min',xp:20},
+    {id:'f31',t:'Reduza o açúcar hoje',d:'Nenhum açúcar adicionado nas refeições.',dur:'dia todo',xp:30},
+    {id:'f32',t:'Mova-se ao ar livre',d:'Qualquer atividade fora de casa por 20 min.',dur:'20 min',xp:25},
+    {id:'f33',t:'Cuidado com a respiração nasal',d:'Respire pelo nariz o dia todo. Filtra e umidifica o ar.',dur:'dia todo',xp:20},
+    {id:'f34',t:'Evite o celular ao acordar',d:'Primeiros 30 min do dia: sem telas.',dur:'30 min',xp:30},
+    {id:'f35',t:'Lanche saudável no lugar do industrializado',d:'Frutas, castanhas, iogurte natural.',dur:'livre',xp:15},
+    {id:'f36',t:'Exercício de equilíbrio',d:'Fique em um pé por 1 min de cada lado.',dur:'5 min',xp:15},
+    {id:'f37',t:'Cuide da microbiota',d:'Coma algo fermentado: kefir, iogurte, kimchi.',dur:'livre',xp:20},
+    {id:'f38',t:'Pratique a postura de poder',d:'Postura expansiva por 2 min antes de algo desafiador.',dur:'2 min',xp:15},
+    {id:'f39',t:'Evite álcool hoje',d:'Um dia de limpeza. O fígado agradece.',dur:'dia todo',xp:30},
+    {id:'f40',t:'Movimento consciente por 5 min',d:'Mova o corpo devagar, sentindo cada músculo.',dur:'5 min',xp:20},
+  ]
+};
+
+const PILAR_COR = { m:'var(--mente)', e:'var(--emoc)', s:'var(--espi)', f:'var(--fisi)' };
+const PILAR_TAG = { m:'tm', e:'te', s:'ts', f:'tf' };
+const PILAR_NM  = { m:'Mente', e:'Emoções', s:'Espírito', f:'Físico' };
+
+function todayKey(){
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+// ──────────────────────────────────────────
+// RENDER MISSÕES POR PILAR (tabela selecionável)
+// ──────────────────────────────────────────
+// ──────────────────────────────────────────
+// SEMANA ÚTIL — chave da semana (segunda-feira)
+// ──────────────────────────────────────────
+function semanaKey(){
+  const d = new Date();
+  const dow = d.getDay();
+  const diffToMon = (dow === 0) ? -6 : 1 - dow;
+  const mon = new Date(d);
+  mon.setDate(d.getDate() + diffToMon);
+  mon.setHours(0,0,0,0);
+  return mon.getFullYear()+'-'+String(mon.getMonth()+1).padStart(2,'0')+'-'+String(mon.getDate()).padStart(2,'0');
+}
+
+function getSemanaData(data){
+  const sk = semanaKey();
+  if(!data.missoesSemana) data.missoesSemana = {};
+  if(!data.missoesSemana[sk]) data.missoesSemana[sk] = {m:[],e:[],s:[],f:[],confirmado:{m:false,e:false,s:false,f:false}};
+  if(!data.missoesSemana[sk].confirmado) data.missoesSemana[sk].confirmado = {m:false,e:false,s:false,f:false};
+  return { semana: data.missoesSemana[sk], sk };
+}
+
+// ──────────────────────────────────────────
+// RENDER PILAR — separado em Ativas + Catálogo
+// ──────────────────────────────────────────
+function renderMissoesPilar(pilar){
+  const data = getData();
+  const today = todayKey();
+  const doneIds = (data&&data.missionsByDay&&data.missionsByDay[today])||[];
+  const { semana } = getSemanaData(data);
+  const sel = semana[pilar] || [];
+  const confirmado = semana.confirmado[pilar] || false;
+  const cor = PILAR_COR[pilar];
+  const tagCls = PILAR_TAG[pilar];
+
+  // ── Banner de status ──
+  const bannerEl = document.getElementById('status-banner-'+pilar);
+  if(bannerEl){
+    if(confirmado){
+      bannerEl.innerHTML = `
+        <div style="background:rgba(201,169,110,.1);border:1px solid rgba(201,169,110,.25);border-radius:14px;padding:13px 16px;margin-bottom:12px;display:flex;align-items:center;gap:10px">
+          <div style="font-size:20px">🔒</div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--gold)">Missões confirmadas para esta semana</div>
+            <div style="font-size:10px;color:var(--mut);margin-top:2px">Novas escolhas liberam na próxima segunda-feira</div>
+          </div>
+        </div>`;
+    } else {
+      bannerEl.innerHTML = `
+        <div style="background:var(--sur);border:1px solid var(--bor2);border-radius:14px;padding:13px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:10px;color:var(--mut);margin-bottom:2px">Selecionadas esta semana</div>
+            <div style="font-size:13px;font-weight:700;color:${cor}">${sel.length}/4 missões</div>
+          </div>
+          <div style="display:flex;gap:5px">
+            ${[0,1,2,3].map(i=>`<div style="width:10px;height:10px;border-radius:50%;background:${i<sel.length?cor:'var(--bor2)'}"></div>`).join('')}
+          </div>
+        </div>`;
+    }
+  }
+
+  // ── Seção de missões ATIVAS (confirmadas ou selecionadas) ──
+  const ativasEl = document.getElementById('ativas-'+pilar);
+  if(ativasEl){
+    ativasEl.innerHTML = '';
+    if(sel.length > 0){
+      const header = document.createElement('div');
+      header.className = 'div-m';
+      header.style.cssText = 'font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:'+cor+';padding:4px 0 8px;display:flex;align-items:center;gap:10px';
+      header.innerHTML = `⚡ Missões Ativas <span style="flex:1;height:1px;background:${cor};opacity:.3;display:inline-block"></span>`;
+      ativasEl.appendChild(header);
+
+      const ativasList = document.createElement('div');
+      ativasList.style.cssText = 'display:flex;flex-direction:column;gap:10px;margin-bottom:16px';
+      sel.forEach(id => {
+        const m = MISSOES_DB[pilar].find(x=>x.id===id);
+        if(!m) return;
+        const isDone = doneIds.includes(id);
+        const ultimaVez = data.missoesConcluidas && data.missoesConcluidas[id];
+        const emCooldown = ultimaVez && !isDone && (Date.now() - ultimaVez) < 24*60*60*1000;
+        const horasRestantes = emCooldown ? Math.ceil(24 - (Date.now()-ultimaVez)/(1000*60*60)) : 0;
+
+        const card = document.createElement('div');
+        card.className = 'mc' + (isDone?' done':'');
+        card.style.cssText = `border-color:${cor};background:var(--sur2)`;
+        card.innerHTML = `
+          <div class="mck" style="cursor:pointer;${isDone?'border-color:transparent;background:'+cor:'border-color:'+cor}" onclick="toggleMissaoConcluida('${id}','${pilar}')">${isDone?'✓':emCooldown?'⏳':''}</div>
+          <div class="mb">
+            <div class="mtg"><span class="${tagCls}">${PILAR_NM[pilar]}</span><span class="tw">⚡ Ativa</span></div>
+            <div class="mct">${m.t}</div>
+            <div class="mcd">${m.d}</div>
+            <div class="mcf"><div class="mxp">💎 +${m.xp} XP</div><div class="mdu">⏱ ${m.dur}</div></div>
+          </div>
+          <button style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:20px;border:1px solid;flex-shrink:0;transition:all .2s;
+            ${isDone
+              ? 'background:var(--sur2);color:var(--mut);border-color:var(--bor);cursor:not-allowed'
+              : emCooldown
+                ? 'background:var(--faint);color:var(--mut);border-color:var(--bor);cursor:not-allowed'
+                : 'background:rgba(201,169,110,.15);color:var(--gold);border-color:rgba(201,169,110,.3);cursor:pointer'
+            }">
+            ${isDone?'✓ Feita': emCooldown?'⏳ '+horasRestantes+'h':'Marcar feita'}
+          </button>`;
+        card.querySelector('button').onclick = e => { e.stopPropagation(); toggleMissaoConcluida(id, pilar); };
+        ativasList.appendChild(card);
+      });
+      ativasEl.appendChild(ativasList);
+    }
+  }
+
+  // ── Catálogo (missões não selecionadas) ──
+  const container = document.getElementById('list-'+pilar);
+  if(!container) return;
+  container.innerHTML = '';
+
+  if(!confirmado){
+    const catHeader = document.createElement('div');
+    catHeader.className = 'div-m';
+    catHeader.style.cssText = 'font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);padding:4px 0 8px;display:flex;align-items:center;gap:10px';
+    catHeader.innerHTML = `${sel.length>0?'Outras missões':'Escolha até 4 missões'} <span style="flex:1;height:1px;background:var(--bor2);display:inline-block"></span>`;
+    container.appendChild(catHeader);
+  }
+
+  const bloqueado = sel.length >= 4;
+  MISSOES_DB[pilar].forEach(m => {
+    if(sel.includes(m.id)) return; // já está nas ativas
+    if(confirmado) return; // confirmado: não mostra catálogo
+    const bloqEssa = bloqueado;
+    const card = document.createElement('div');
+    card.className = 'mc';
+    card.innerHTML = `
+      <div class="mck"></div>
+      <div class="mb">
+        <div class="mtg"><span class="${tagCls}">${PILAR_NM[pilar]}</span><span class="td">Diário</span></div>
+        <div class="mct">${m.t}</div>
+        <div class="mcd">${m.d}</div>
+        <div class="mcf"><div class="mxp">💎 +${m.xp} XP</div><div class="mdu">⏱ ${m.dur}</div></div>
+      </div>
+      <button style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:20px;border:1px solid;transition:all .2s;flex-shrink:0;
+        ${bloqEssa
+          ? 'background:var(--faint);color:var(--mut);border-color:var(--bor);cursor:not-allowed;opacity:.5'
+          : 'background:var(--sur2);color:var(--mut);border-color:var(--bor2);cursor:pointer'
+        }">
+        ${bloqEssa?'🔒 Limite':'+ Selecionar'}
+      </button>`;
+    const btn = card.querySelector('button');
+    if(!bloqEssa) btn.onclick = e => { e.stopPropagation(); toggleMissaoSelecionada(m.id, pilar); };
+    else btn.onclick = e => { e.stopPropagation(); showToast('⚠ Máximo 4 missões por pilar!'); };
+    container.appendChild(card);
+  });
+
+  // ── Botão Confirmar ──
+  const confirmWrap = document.getElementById('confirm-wrap-'+pilar);
+  if(confirmWrap){
+    confirmWrap.innerHTML = '';
+    if(!confirmado && sel.length > 0){
+      const btn = document.createElement('button');
+      btn.className = 'gold-btn';
+      btn.style.cssText = 'display:block;width:100%;text-align:center;font-size:12px';
+      btn.textContent = `✦ Confirmar ${sel.length} missão${sel.length>1?'es':''} de ${PILAR_NM[pilar]}`;
+      btn.onclick = () => confirmarMissoes(pilar);
+      confirmWrap.appendChild(btn);
+    }
+  }
+}
+
+function toggleMissaoSelecionada(id, pilar){
+  if(!currentUser) return;
+  const data = getData();
+  const { semana, sk } = getSemanaData(data);
+  if(!semana[pilar]) semana[pilar] = [];
+  if(semana.confirmado[pilar]){ showToast('🔒 Missões já confirmadas para esta semana!'); return; }
+  const arr = semana[pilar];
+  const idx = arr.indexOf(id);
+  if(idx >= 0){
+    arr.splice(idx, 1);
+  } else {
+    if(arr.length >= 4){ showToast('⚠ Máximo 4 missões por pilar!'); return; }
+    arr.push(id);
+  }
+  data.missoesSemana[sk] = semana;
+  data.selectedMissions = semana;
+  saveData(data);
+  renderMissoesPilar(pilar);
+  updateEquilibrio(data);
+}
+
+function confirmarMissoes(pilar){
+  if(!currentUser) return;
+  const data = getData();
+  const { semana, sk } = getSemanaData(data);
+  if((semana[pilar]||[]).length === 0){ showToast('⚠ Selecione pelo menos 1 missão!'); return; }
+  semana.confirmado[pilar] = true;
+  data.missoesSemana[sk] = semana;
+  data.selectedMissions = semana;
+  saveData(data);
+  renderMissoesPilar(pilar);
+  updateEquilibrio(data);
+  showToast(`✦ Missões de ${PILAR_NM[pilar]} confirmadas!`);
+}
+
+function toggleMissaoConcluida(id, pilar){
+  if(!currentUser) return;
+  const data = getData();
+  const today = todayKey();
+  if(!data.missionsByDay) data.missionsByDay = {};
+  if(!data.missionsByDay[today]) data.missionsByDay[today] = [];
+  if(!data.missionsXPClaimed) data.missionsXPClaimed = {};
+  if(!data.missoesConcluidas) data.missoesConcluidas = {}; // { id: timestamp }
+
+  const arr = data.missionsByDay[today];
+  const isDone = arr.includes(id);
+
+  if(isDone){
+    // ── Bloqueio: não pode desmarcar ──
+    showToast('🔒 Missão já concluída — não pode desfazer!');
+    return;
+  }
+
+  // ── Verificar cooldown de 24h ──
+  const ultimaVez = data.missoesConcluidas[id];
+  if(ultimaVez){
+    const diff = Date.now() - ultimaVez;
+    const horas = diff / (1000 * 60 * 60);
+    if(horas < 24){
+      const restante = Math.ceil(24 - horas);
+      showToast(`⏳ Disponível novamente em ${restante}h`);
+      return;
+    }
+  }
+
+  // ── Marcar como feita ──
+  arr.push(id);
+  data.missionsDone = (data.missionsDone||0)+1;
+  data.missoesConcluidas[id] = Date.now();
+
+  // Ganhar XP
+  const missao = MISSOES_DB[pilar].find(m=>m.id===id);
+  const xpGain = missao ? missao.xp : 20;
+  if(!data.missionsXPClaimed[today+'_'+id]){
+    data.xp = (data.xp||0) + xpGain;
+    data.missionsXPClaimed[today+'_'+id] = true;
+    document.querySelectorAll('#totalXP').forEach(el=>el.textContent=data.xp);
+    updateRank(data.xp);
+    showToast('💎 +'+xpGain+' XP ganhos!');
+  }
+
+  saveData(data);
+  renderMissoesPilar(pilar);
+  renderHojeList(data);
+  updateEquilibrio(data);
+  buildHomeChart();
+  checkConquistas(data, false);
+  document.querySelectorAll('#totalMissions').forEach(el=>el.textContent=data.missionsDone);
+}
+
+// ──────────────────────────────────────────
+// RENDER ABA HOJE
+// ──────────────────────────────────────────
+function renderHojeList(data){
+  const list = document.getElementById('hoje-list');
+  const empty = document.getElementById('hoje-empty');
+  if(!list) return;
+  const today = todayKey();
+  const doneIds = (data&&data.missionsByDay&&data.missionsByDay[today])||[];
+  const { semana } = getSemanaData(data);
+  let allSelected = [];
+  ['m','e','s','f'].forEach(p => {
+    (semana[p]||[]).forEach(id => allSelected.push({id, pilar:p}));
+  });
+  list.innerHTML = '';
+  if(allSelected.length === 0){ if(empty) empty.style.display='block'; return; }
+  if(empty) empty.style.display='none';
+  allSelected.forEach(({id, pilar}) => {
+    const m = MISSOES_DB[pilar].find(x=>x.id===id);
+    if(!m) return;
+    const isDone = doneIds.includes(id);
+    const cor = PILAR_COR[pilar];
+    const tagCls = PILAR_TAG[pilar];
+    const ultimaVez = data.missoesConcluidas && data.missoesConcluidas[id];
+    const emCooldown = ultimaVez && !isDone && (Date.now() - ultimaVez) < 24*60*60*1000;
+    const horasRestantes = emCooldown ? Math.ceil(24 - (Date.now()-ultimaVez)/(1000*60*60)) : 0;
+    const el = document.createElement('div');
+    el.className = 'mc' + (isDone?' done':'');
+    el.innerHTML = `
+      <div class="mck" style="cursor:pointer;${isDone?'border-color:transparent;background:'+cor:''}" onclick="toggleMissaoConcluida('${id}','${pilar}')">${isDone?'✓':emCooldown?'⏳':''}</div>
+      <div class="mb">
+        <div class="mtg"><span class="${tagCls}">${PILAR_NM[pilar]}</span></div>
+        <div class="mct">${m.t}</div>
+        <div class="mcd">${m.d}</div>
+        <div class="mcf"><div class="mxp">💎 +${m.xp} XP</div><div class="mdu">⏱ ${m.dur}</div></div>
+      </div>
+      <button style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:20px;border:1px solid;flex-shrink:0;
+        ${isDone
+          ? 'background:var(--sur2);color:var(--mut);border-color:var(--bor);cursor:not-allowed'
+          : emCooldown
+            ? 'background:var(--faint);color:var(--mut);border-color:var(--bor);cursor:not-allowed'
+            : 'background:rgba(201,169,110,.15);color:var(--gold);border-color:rgba(201,169,110,.3);cursor:pointer'
+        }">
+        ${isDone?'✓ Feita': emCooldown?'⏳ '+horasRestantes+'h':'Marcar feita'}
+      </button>`;
+    el.querySelector('button').onclick = e => { e.stopPropagation(); toggleMissaoConcluida(id, pilar); };
+    list.appendChild(el);
+  });
+}
+
+// ──────────────────────────────────────────
+// ATUALIZAR EQUILÍBRIO (score de missões)
+// ──────────────────────────────────────────
+function updateEquilibrio(data){
+  if(!data) return;
+  const today = todayKey();
+  const doneIds = (data.missionsByDay&&data.missionsByDay[today])||[];
+  const { semana } = getSemanaData(data);
+
+  const pilars = ['m','e','s','f'];
+  const scores = {};
+  pilars.forEach(p => {
+    const selArr = (semana[p]||[]);
+    if(selArr.length === 0){ scores[p] = 0; return; }
+    const done = selArr.filter(id => doneIds.includes(id)).length;
+    scores[p] = Math.round((done/selArr.length)*100);
+  });
+
+  const total = Math.round((scores.m + scores.e + scores.s + scores.f)/4);
+
+  // Score na home
+  const scNum = document.querySelector('.sc-num');
+  if(scNum) scNum.innerHTML = total+'<span>/100</span>';
+  const ring = document.querySelector('.ring-fg');
+  if(ring){ const c=2*Math.PI*28; ring.style.strokeDashoffset=c-c*total/100; }
+  const ringTxt = document.querySelector('.ring-txt');
+  if(ringTxt){ ringTxt.textContent=total+'%'; ringTxt.style.color=total>50?'var(--gold)':'var(--mut)'; }
+  const trend = document.querySelector('.sc-trend');
+  if(trend && total>0){ trend.textContent='✦ Equilíbrio em '+total+'%'; trend.style.color='var(--gold)'; trend.style.background='var(--gold-bg)'; trend.style.borderColor='rgba(201,169,110,.2)'; }
+
+  // Barras de pilar nos cards
+  [['.pc.pm .pill','.pc.pm .pv',scores.m],['.pc.pe .pill','.pc.pe .pv',scores.e],
+   ['.pc.psp .pill','.pc.psp .pv',scores.s],['.pc.pf .pill','.pc.pf .pv',scores.f]]
+  .forEach(([ps,pvs,v])=>{
+    const pill=document.querySelector(ps); if(pill) pill.textContent=v;
+    const pv=document.querySelector(pvs); if(pv){ pv.textContent=v; pv.style.color='var(--txt)'; }
+  });
+
+  // Barras na aba Hoje
+  pilars.forEach(p => {
+    const bar = document.getElementById('bar-'+p);
+    const pct = document.getElementById('bar-'+p+'-pct');
+    if(bar) bar.style.width = scores[p]+'%';
+    if(pct) pct.textContent = scores[p]+'%';
+  });
+  const hojeTotal = document.getElementById('hoje-pct');
+  if(hojeTotal) hojeTotal.textContent = total+'%';
+
+  // Mapa de pilares
+  const mapBars = document.querySelectorAll('.hbtr .hbf');
+  const mapLabels = document.querySelectorAll('.hbp');
+  [scores.m, scores.e, scores.s, scores.f].forEach((v,i)=>{
+    if(mapBars[i]) mapBars[i].style.width=v+'%';
+    if(mapLabels[i]) mapLabels[i].textContent=v+'/100';
+  });
+  const mapaRn = document.querySelector('.mapa-rn');
+  if(mapaRn) mapaRn.textContent = total;
+  const mapaCircle = document.querySelector('.mapa-rw circle:nth-child(2)');
+  if(mapaCircle){ const c=2*Math.PI*56; mapaCircle.style.strokeDashoffset=c-c*total/100; }
+}
+
+// ──────────────────────────────────────────
+// TABS DE MISSÃO
+// ──────────────────────────────────────────
+function switchMissTab(tab){
+  ['m','e','s','f','hoje'].forEach(t => {
+    const view = document.getElementById('mview-'+t);
+    const tabEl = document.getElementById('mtab-'+t);
+    if(view) view.style.display = t===tab ? 'block' : 'none';
+    if(tabEl){ tabEl.classList.remove('at'); }
+    if(view && t===tab) view.scrollTop=0;
+  });
+  const activeTab = document.getElementById('mtab-'+tab);
+  if(activeTab) activeTab.classList.add('at');
+
+  if(tab !== 'hoje') renderMissoesPilar(tab);
+  else {
+    const data = getData();
+    renderHojeList(data);
+    updateEquilibrio(data);
+  }
+}
+
+function renderMissionsState(data){ updateEquilibrio(data); }
+
+function updateMissionsUI(data){
+  if(!data) return;
+  const streak = calcStreak(data.checkins||[]);
+  updateStreakDisplay(streak);
+  updateEquilibrio(data);
+}
+
+// Compatibilidade com toggle antigo (não usado mais mas evita erros)
+function assignMissionIds(){}
+function toggle(el){}
+
+function switchTab(p){ switchMissTab(p); }
+
+// ══════════════════════════════════════════
+// ══════════════════════════════════════════
+// ROTINAS — sistema de ações customizadas
+// ══════════════════════════════════════════
+let _rotPeriodo = 'm'; // período atual aberto
+
+function switchRot(el, id){
+  document.querySelectorAll('.rtt').forEach(r=>r.classList.remove('ar'));
+  el.classList.add('ar');
+  ['rot-m','rot-t','rot-n'].forEach(r=>{
+    const el2=document.getElementById(r);
+    if(el2) el2.style.display=r===id?'flex':'none';
+  });
+  _rotPeriodo = id.replace('rot-','');
+}
+
+function loadRotinas(data){
+  if(!data) return;
+  if(!data.rotinasCustom) data.rotinasCustom = {m:[],t:[],n:[]};
+  ['m','t','n'].forEach(p => renderRotPeriodo(p, data));
+}
+
+function renderRotPeriodo(p, data){
+  const listEl = document.getElementById('rot-'+p+'-list');
+  if(!listEl) return;
+  const today = todayKey();
+  const acoes = (data.rotinasCustom && data.rotinasCustom[p]) || [];
+  if(acoes.length === 0){
+    listEl.innerHTML = `<div style="text-align:center;padding:24px 16px;color:var(--mut);font-size:11px">Nenhuma ação ainda.<br>Adicione sua primeira rotina! ✨</div>`;
+    return;
+  }
+  listEl.innerHTML = '';
+  // Ordenar por horário
+  const sorted = [...acoes].sort((a,b)=>a.hora.localeCompare(b.hora));
+  sorted.forEach(acao => {
+    const [hh, mm] = acao.hora.split(':');
+    const h24 = parseInt(hh);
+    const ampm = h24 >= 12 ? 'PM' : 'AM';
+    const h12 = h24 > 12 ? h24-12 : h24===0 ? 12 : h24;
+    const statusHoje = (data.rotinasLog && data.rotinasLog[today] && data.rotinasLog[today][acao.id]) || null;
+    // null = sem resposta, 'feito' = feito, 'nao' = não feito
+
+    const card = document.createElement('div');
+    card.className = 'rot-card';
+    card.style.cssText = `flex-direction:column;gap:10px;${statusHoje==='feito'?'border-color:var(--fisi);opacity:.7':statusHoje==='nao'?'border-color:rgba(232,100,100,.3);opacity:.6':''}`;
+    card.innerHTML = `
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div class="rtb"><div class="rth">${h12}:${mm}</div><div class="rtam">${ampm}</div></div>
+        <div style="flex:1">
+          <div class="rtt2">${acao.nome}</div>
+          ${acao.desc?`<div class="rtd">${acao.desc}</div>`:''}
+        </div>
+        <div onclick="excluirAcao('${acao.id}','${p}')" style="color:var(--mut);font-size:16px;cursor:pointer;padding:2px 6px;opacity:.5;line-height:1">×</div>
+      </div>
+      <div class="rot-status">
+        <button onclick="marcarAcao('${acao.id}','${p}','feito')" style="background:${statusHoje==='feito'?'rgba(107,191,142,.2)':'var(--faint)'};color:${statusHoje==='feito'?'var(--fisi)':'var(--mut)'};border-color:${statusHoje==='feito'?'rgba(107,191,142,.4)':'var(--bor)'}">
+          ✓ ${statusHoje==='feito'?'Feito!':'Feito'}
+        </button>
+        <button onclick="marcarAcao('${acao.id}','${p}','nao')" style="background:${statusHoje==='nao'?'rgba(232,100,100,.15)':'var(--faint)'};color:${statusHoje==='nao'?'#E86464':'var(--mut)'};border-color:${statusHoje==='nao'?'rgba(232,100,100,.3)':'var(--bor)'}">
+          ✗ ${statusHoje==='nao'?'Não fiz':'Não fiz'}
+        </button>
+      </div>`;
+    listEl.appendChild(card);
+  });
+}
+
+function marcarAcao(id, periodo, status){
+  if(!currentUser) return;
+  const data = getData();
+  const today = todayKey();
+  if(!data.rotinasLog) data.rotinasLog = {};
+  if(!data.rotinasLog[today]) data.rotinasLog[today] = {};
+  // Toggle: se já está marcado com mesmo status, remove
+  if(data.rotinasLog[today][id] === status) delete data.rotinasLog[today][id];
+  else data.rotinasLog[today][id] = status;
+  saveData(data);
+  renderRotPeriodo(periodo, data);
+}
+
+let _rotPeriodoModal = 'm';
+function openAddAcao(periodo){
+  _rotPeriodoModal = periodo;
+  document.getElementById('rot-hora').value = '';
+  document.getElementById('rot-nome').value = '';
+  document.getElementById('rot-desc').value = '';
+  const modal = document.getElementById('rot-modal');
+  modal.style.display = 'flex';
+}
+function closeAddAcao(){
+  document.getElementById('rot-modal').style.display = 'none';
+}
+function salvarAcao(){
+  const hora = document.getElementById('rot-hora').value;
+  const nome = document.getElementById('rot-nome').value.trim();
+  const desc = document.getElementById('rot-desc').value.trim();
+  if(!hora || !nome){ showToast('⚠ Preencha horário e ação!'); return; }
+  if(!currentUser) return;
+  const data = getData();
+  if(!data.rotinasCustom) data.rotinasCustom = {m:[],t:[],n:[]};
+  if(!data.rotinasCustom[_rotPeriodoModal]) data.rotinasCustom[_rotPeriodoModal] = [];
+  const id = 'r'+Date.now();
+  data.rotinasCustom[_rotPeriodoModal].push({id, hora, nome, desc});
+  saveData(data);
+  closeAddAcao();
+  renderRotPeriodo(_rotPeriodoModal, data);
+  showToast('✦ Ação adicionada à rotina!');
+}
+function excluirAcao(id, periodo){
+  if(!currentUser) return;
+  const data = getData();
+  if(!data.rotinasCustom || !data.rotinasCustom[periodo]) return;
+  data.rotinasCustom[periodo] = data.rotinasCustom[periodo].filter(a=>a.id!==id);
+  saveData(data);
+  renderRotPeriodo(periodo, data);
+  showToast('Ação removida.');
+}
+
+// Manter compatibilidade com toggleRot antigo
+function toggleRot(el,id){ }
+
+// ══════════════════════════════════════════
+// PRÁTICAS
+// ══════════════════════════════════════════
+const pratData={
+  resp:{title:'Respiração 4-7-8',dur:300,steps:[
+    {c:'Sente-se confortavelmente e feche os olhos. Relaxe os ombros.',col:'#B09FD8'},
+    {c:'<strong>Inspire</strong> pelo nariz contando lentamente até <strong>4</strong>.',col:'#7BAFD4'},
+    {c:'<strong>Segure</strong> o ar contando até <strong>7</strong>. Não force.',col:'#B09FD8'},
+    {c:'<strong>Expire</strong> pela boca contando até <strong>8</strong>, soltando tudo.',col:'#6BBF8E'},
+    {c:'Repita <strong>4 ciclos</strong>. Cada rodada leva cerca de 19 segundos.',col:'#C9A96E'},
+  ]},
+  scan:{title:'Scan Corporal',dur:600,steps:[
+    {c:'Deite-se ou sente-se confortavelmente. Feche os olhos e respire fundo 3 vezes.',col:'#6BBF8E'},
+    {c:'Leve a atenção para a <strong>cabeça</strong>. Observe qualquer tensão sem tentar mudar.',col:'#7BAFD4'},
+    {c:'Desça pelos <strong>ombros, braços e mãos</strong>. Deixe o que sentir estar lá.',col:'#B09FD8'},
+    {c:'Observe o <strong>peito e abdômen</strong>. Sinta o movimento suave da respiração.',col:'#E8956D'},
+    {c:'Percorra <strong>pernas, joelhos, tornozelos e pés</strong>. O corpo inteiro presente.',col:'#6BBF8E'},
+  ]},
+  roda:{title:'Roda das Emoções',dur:480,steps:[
+    {c:'Feche os olhos e pergunte: <em>"O que estou sentindo agora?"</em>',col:'#E8956D'},
+    {c:'Nomeie com <strong>precisão</strong>: não "ruim" — talvez "frustração" ou "melancolia".',col:'#E8956D'},
+    {c:'Onde no corpo você sente isso? <strong>Peito? Garganta? Estômago?</strong>',col:'#B09FD8'},
+    {c:'Respire <strong>3 vezes</strong> para aquele lugar. Sem querer mudar — apenas estar.',col:'#7BAFD4'},
+    {c:'Diga internamente: <em>"Eu te vejo. Você tem espaço aqui."</em>',col:'#C9A96E'},
+  ]},
+  journal:{title:'Journaling Cognitivo',dur:900,steps:[
+    {c:'Escolha <strong>um pensamento recorrente</strong> que incomoda. Escreva-o claramente.',col:'#7BAFD4'},
+    {c:'Pergunte: <em>"Esse pensamento é realmente verdade?"</em> Quais as evidências?',col:'#B09FD8'},
+    {c:'Pergunte: <em>"Quais evidências contradizem isso?"</em> Seja honesta e curiosa.',col:'#E8956D'},
+    {c:'Crie um <strong>pensamento alternativo mais útil</strong>. Não falso — mais equilibrado.',col:'#6BBF8E'},
+    {c:'Leia o novo pensamento em voz alta. <em>Como seu corpo responde a ele?</em>',col:'#C9A96E'},
+  ]},
+  mov:{title:'Movimento Livre',dur:300,steps:[
+    {c:'Escolha uma <strong>música que você ama</strong>. Coloque no volume que sentir vontade.',col:'#6BBF8E'},
+    {c:'Fique de pé e <strong>feche os olhos por 10 segundos</strong>. Sinta o peso do corpo.',col:'#B09FD8'},
+    {c:'Deixe o <strong>corpo começar a se mover</strong> como quiser. Não existe certo ou errado.',col:'#6BBF8E'},
+    {c:'Mova-se <strong>5 minutos inteiros</strong> sem julgamento. Expressão, não performance.',col:'#E8956D'},
+    {c:'Ao terminar, fique imóvel. <em>Como o corpo se sente agora?</em>',col:'#C9A96E'},
+  ]},
+  ceu:{title:'Contemplação do Céu',dur:300,steps:[
+    {c:'Vá até uma <strong>janela ou saia para fora</strong>. Deixe o celular de lado.',col:'#B09FD8'},
+    {c:'Olhe para o <strong>céu</strong>. Nuvens, estrelas, pássaros — o que estiver lá.',col:'#7BAFD4'},
+    {c:'<strong>Não pense sobre o que vê</strong>. Apenas veja. O ver sem nomear é contemplação.',col:'#B09FD8'},
+    {c:'Fique assim por <strong>5 minutos</strong>. O infinito regula o ego de formas únicas.',col:'#C9A96E'},
+    {c:'Antes de voltar, respire fundo 3 vezes. <em>O que está diferente em você agora?</em>',col:'#6BBF8E'},
+  ]},
+};
+
+let timerInterval=null, timerSec=0;
+function openPrat(id){
+  const d=pratData[id]; if(!d) return;
+  document.getElementById('pm-title').textContent=d.title;
+  timerSec=d.dur;
+  document.getElementById('pm-timer-txt').textContent=`Iniciar temporizador · ${Math.floor(d.dur/60)} min`;
+  clearInterval(timerInterval); timerInterval=null;
+  document.getElementById('pm-steps').innerHTML=d.steps.map((s,i)=>
+    `<div class="pm-step"><div class="pm-sn" style="background:${s.col};color:#0C0B09">${i+1}</div><div class="pm-st">${s.c}</div></div>`
+  ).join('');
+  document.getElementById('pmodal').classList.add('open');
+}
+function closePrat(){
+  document.getElementById('pmodal').classList.remove('open');
+  clearInterval(timerInterval); timerInterval=null;
+  document.getElementById('pm-timer-txt').textContent='Iniciar temporizador';
+}
+function startTimer(){
+  const btn=document.getElementById('pm-timer-txt');
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null;
+    btn.textContent=`▶ Continuar · ${Math.floor(timerSec/60)}:${String(timerSec%60).padStart(2,'0')}`;
+    return;
+  }
+  let rem=timerSec;
+  timerInterval=setInterval(()=>{
+    rem--; timerSec=rem;
+    if(rem<=0){ clearInterval(timerInterval); timerInterval=null; btn.textContent='✦ Tempo concluído!'; return; }
+    btn.textContent=`⏸ ${Math.floor(rem/60)}:${String(rem%60).padStart(2,'0')} restantes`;
+  },1000);
+  btn.textContent=`⏸ ${Math.floor(rem/60)}:${String(rem%60).padStart(2,'0')} restantes`;
+}
+
+// ══════════════════════════════════════════
+// RANK
+// ══════════════════════════════════════════
+const rankLevels=[
+  {lv:1,name:'Semente',  icon:'🌱',cls:'rank-lv1',min:0,   next:200},
+  {lv:2,name:'Brotando', icon:'🌿',cls:'rank-lv2',min:200, next:500},
+  {lv:3,name:'Em Fluxo', icon:'🌊',cls:'rank-lv3',min:500, next:1000},
+  {lv:4,name:'Guardião', icon:'✦', cls:'rank-lv4',min:1000,next:1500},
+  {lv:5,name:'Místico',  icon:'🔮',cls:'rank-lv5',min:1500,next:3000},
+  {lv:6,name:'Iluminado',icon:'👑',cls:'rank-lv6',min:3000,next:9999},
+];
+function updateRank(xp){
+  const lvl=[...rankLevels].reverse().find(r=>xp>=r.min)||rankLevels[0];
+  const nextLvl=rankLevels[lvl.lv]||lvl;
+  const pct=lvl.lv===6?100:Math.min(100,Math.round(((xp-lvl.min)/(nextLvl.min-lvl.min))*100));
+  const badge=document.getElementById('rankBadge');
+  if(badge){badge.textContent=lvl.icon;badge.className='rank-badge '+lvl.cls;}
+  const tl=document.querySelector('.rank-title-lbl');
+  if(tl) tl.textContent='Nível '+lvl.lv+' · '+lvl.name;
+  const tn=document.querySelector('.rank-title-name');
+  if(tn) tn.innerHTML=lvl.lv<=2?'Início da <em>Jornada</em>':lvl.lv<=4?'No caminho do <em>Equilíbrio</em>':'Maestria <em>Conquistada</em>';
+  const xls=document.querySelectorAll('.rank-xp-lbl span');
+  if(xls.length>=2){xls[0].textContent=xp+' XP acumulado';xls[1].textContent=lvl.lv===6?'Nível máximo ✦':'Próximo: '+nextLvl.min+' XP';}
+  const fill=document.getElementById('xpFill');
+  if(fill) setTimeout(()=>fill.style.width=pct+'%',200);
+  document.querySelectorAll('.rl').forEach((el,i)=>{
+    el.classList.remove('current','locked'); el.style.opacity='';
+    const bdg=el.querySelector('.rl-badge'); if(!bdg) return;
+    if(i+1<lvl.lv){el.style.opacity='.5';bdg.textContent='✓ Conquistado';bdg.style.cssText='background:var(--gold-bg);color:var(--gold);border-color:rgba(201,169,110,.3)'}
+    else if(i+1===lvl.lv){el.classList.add('current');bdg.textContent='← Você';bdg.style.cssText='';}
+    else{el.classList.add('locked');bdg.textContent='🔒 Bloq.';bdg.style.cssText='background:var(--faint);color:var(--mut);border-color:var(--bor)';}
+  });
+}
+function animateRankBars(){
+  if(!currentUser) return;
+  const data=getData();
+  updateRank(data.xp||0);
+  updateStreakDisplay(calcStreak(data.checkins||[]));
+  if(data.checkins&&data.checkins.length>0){
+    const last=data.checkins[data.checkins.length-1];
+    const vals=[last.m||0,last.e||0,last.s||0,last.f||0];
+    const pfills=document.querySelectorAll('.rp-fill');
+    const pranks=document.querySelectorAll('.rp-rank');
+    const psubs=document.querySelectorAll('.rp-sub');
+    vals.forEach((v,i)=>{setTimeout(()=>{
+      if(pfills[i]) pfills[i].style.width=(v*10)+'%';
+      if(pranks[i]) pranks[i].textContent='Nível '+(v>=8?3:v>=5?2:1);
+      if(psubs[i])  psubs[i].textContent=(v*10)+' pts · '+(v>=8?'Avançado':v>=5?'Intermediário':'Iniciante');
+    },300+i*80);});
+  }
+}
+
+// ══════════════════════════════════════════
+// DIÁRIO
+// ══════════════════════════════════════════
+function openDiary(){
+  const now=new Date();
+  document.getElementById('dm-date').textContent=
+    now.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+
+    ' · '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('diaryTa').value='';
+  const titleEl = document.getElementById('diaryTitle');
+  if(titleEl) titleEl.value='';
+  document.querySelectorAll('.dm-tag').forEach(t=>{t.classList.remove('sel');t.style.cssText='';});
+  document.getElementById('diaryModal').classList.add('open');
+  setTimeout(()=>{ const t=document.getElementById('diaryTitle')||document.getElementById('diaryTa'); if(t) t.focus(); },400);
+}
+function closeDiary(){ document.getElementById('diaryModal').classList.remove('open'); }
+function saveDiary(){
+  const txt=document.getElementById('diaryTa').value.trim();
+  if(!txt){ showToast('⚠ Escreva algo antes de salvar!'); return; }
+  if(!currentUser){ showToast('⚠ Faça login para salvar'); closeDiary(); return; }
+  const titleEl=document.getElementById('diaryTitle');
+  const titulo=(titleEl&&titleEl.value.trim())||'Entrada do diário';
+  const tag=document.querySelector('.dm-tag.sel');
+  const tagLabel=tag?tag.textContent.trim():'';
+  const data=getData();
+  data.xp=(data.xp||0)+15;
+  if(!data.diaryEntries) data.diaryEntries=[];
+  // Entrada permanente — sem campo de delete
+  data.diaryEntries.unshift({
+    id: 'de'+Date.now(),
+    date: new Date().toISOString(),
+    titulo,
+    text: txt,
+    tag: tagLabel
+  });
+  saveData(data);
+  document.querySelectorAll('#totalXP').forEach(el=>el.textContent=data.xp);
+  updateRank(data.xp);
+  checkConquistas(data, false);
+  renderDiary();
+  showToast('✦ Entrada salva no diário · +15 XP');
+  closeDiary();
+}
+function renderDiary(){
+  if(!currentUser) return;
+  const data=getData();
+  const entries=(data&&data.diaryEntries)||[];
+  const list=document.getElementById('diaryList');
+  if(!list) return;
+  if(entries.length===0){
+    list.innerHTML='<div style="text-align:center;padding:24px 0;color:var(--mut);font-size:12px">Nenhuma entrada ainda. Comece escrevendo! 📓</div>';
+    return;
+  }
+  list.innerHTML=entries.map((e,idx)=>{
+    const d=new Date(e.date);
+    const ds=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'short'})+' · '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    const preview=(e.text||'').substring(0,90)+(e.text.length>90?'...':'');
+    const tagHtml=e.tag?`<span style="font-size:8px;padding:2px 7px;border-radius:20px;background:var(--faint);border:1px solid var(--bor);color:var(--mut)">${e.tag}</span>`:'';
+    const titulo=e.titulo||'Entrada do diário';
+    return `<div class="de" data-idx="${idx}" onclick="openEntry(this.dataset.idx)">
+      <div class="de-dt"><span>${ds}</span>${tagHtml}</div>
+      <div class="de-tt">${titulo}</div>
+      <div class="de-pv">${preview}</div>
+    </div>`;
+  }).join('');
+}
+function selTag(el,col){
+  document.querySelectorAll('.dm-tag').forEach(t=>{t.classList.remove('sel');t.style.cssText='';});
+  el.classList.add('sel');
+  const rgba=col==='var(--mente)'?'123,175,212':col==='var(--emoc)'?'232,149,109':col==='var(--espi)'?'176,159,216':'107,191,142';
+  el.style.background=`rgba(${rgba},.2)`;
+  el.style.borderColor=`rgba(${rgba},.5)`;
+  el.style.color='var(--txt)';
+}
+function openEntry(idxRaw){
+  const idx=parseInt(idxRaw,10);
+  if(!currentUser||isNaN(idx)) return;
+  const data=getData();
+  const e=(data&&data.diaryEntries||[])[idx];
+  if(!e) return;
+  const d=new Date(e.date);
+  const ds=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'short'})+' · '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('em-date').textContent=ds;
+  document.getElementById('em-title').textContent=e.titulo||'Entrada do diário';
+  if(e.tag){
+    const ttl=document.getElementById('em-ttl');
+    if(ttl) ttl.textContent=e.tag;
+  }
+  document.getElementById('em-content').textContent=e.text;
+  document.getElementById('entryModal').classList.add('open');
+}
+function closeEntry(){ document.getElementById('entryModal').classList.remove('open'); }
+
+// ══════════════════════════════════════════
+// REVISÃO SEMANAL
+// ══════════════════════════════════════════
+function saveRevisao(){
+  if(!currentUser){ showToast('⚠ Faça login para salvar'); return; }
+  const data=getData();
+  data.xp=(data.xp||0)+100;
+  const tas=document.querySelectorAll('.rev-ta');
+  if(!data.revisoes) data.revisoes=[];
+  data.revisoes.push({date:new Date().toISOString(),r1:tas[0]?tas[0].value.trim():'',r2:tas[1]?tas[1].value.trim():'',r3:tas[2]?tas[2].value.trim():''});
+  saveData(data);
+  document.querySelectorAll('#totalXP').forEach(el=>el.textContent=data.xp);
+  updateRank(data.xp);
+  checkConquistas(data, false);
+  showToast('✅ Revisão salva · +100 XP conquistados!');
+  document.querySelectorAll('.rev-ta').forEach(ta=>ta.value='');
+}
+
+// ══════════════════════════════════════════
+// CONQUISTAS ── sistema completamente reescrito
+// ══════════════════════════════════════════
+const CONQUISTAS_DEF = [
+  {
+    id: 'primeira_faisca',
+    xp: 50,
+    // Verifica de 3 formas diferentes para garantir compatibilidade com dados legados
+    check: function(d){
+      if((d.missionsDone||0) >= 1) return true;
+      // Fallback: contar pelo missionsByDay
+      const totalDone = Object.values(d.missionsByDay||{}).reduce((acc,arr)=>acc+(arr?arr.length:0),0);
+      return totalDone >= 1;
+    },
+    toast: '🏆 Conquista desbloqueada: Primeira Faísca!'
+  },
+  {
+    id: 'guardia_silencio',
+    xp: 120,
+    check: function(d){ return calcStreak(d.checkins||[]) >= 12; },
+    toast: '🌙 Conquista: Guardiã do Silêncio!'
+  },
+  {
+    id: 'aprendiz_emocoes',
+    xp: 80,
+    check: function(d){
+      return (d.diaryEntries||[]).filter(e=>e.tag&&e.tag.toLowerCase().includes('emo')).length >= 5;
+    },
+    toast: '🌊 Conquista: Aprendiz das Emoções!'
+  },
+  {
+    id: 'escritora_de_si',
+    xp: 60,
+    check: function(d){
+      const semana=7*24*60*60*1000, now=Date.now();
+      return (d.diaryEntries||[]).filter(e=>now-new Date(e.date).getTime()<semana).length >= 3;
+    },
+    toast: '📓 Conquista: Escritora de Si!'
+  },
+  {
+    id: 'ser_integrado',
+    xp: 200,
+    check: function(d){
+      if(!d.checkins||d.checkins.length===0) return false;
+      const last=d.checkins[d.checkins.length-1];
+      return (last.m||0)>=8&&(last.e||0)>=8&&(last.s||0)>=8&&(last.f||0)>=8;
+    },
+    toast: '✦ Conquista: Ser Integrado!'
+  },
+  {
+    id: 'trinta_dias',
+    xp: 300,
+    check: function(d){ return calcStreak(d.checkins||[]) >= 30; },
+    toast: '🔥 Conquista: 30 Dias de Equilíbrio!'
+  },
+];
+
+function checkConquistas(data, silencioso){
+  if(!data) return;
+  if(!data.conquistasDesbloqueadas) data.conquistasDesbloqueadas = [];
+  if(!data.conquistasReivindicadas) data.conquistasReivindicadas = [];
+  let updated = false;
+  CONQUISTAS_DEF.forEach(function(cq){
+    try {
+      if(!data.conquistasDesbloqueadas.includes(cq.id) && cq.check(data)){
+        data.conquistasDesbloqueadas.push(cq.id);
+        updated = true;
+        if(!silencioso) setTimeout(function(){ showToast(cq.toast); }, 400);
+      }
+    } catch(e){ console.warn('Erro ao checar conquista '+cq.id, e); }
+  });
+  if(updated) saveData(data);
+  renderConquistasState(data);
+  updateStreakDisplay(calcStreak(data.checkins||[]));
+}
+
+function renderConquistasState(data){
+  if(!data) return;
+  const desbloqueadas = data.conquistasDesbloqueadas || [];
+  const reivindicadas = data.conquistasReivindicadas || [];
+
+  // Atualizar label da seção
+  const secLabel = document.querySelector('#s-conquistas .sl') ||
+                   document.querySelector('#s-conquistas [class="sl"]');
+  // Fallback: buscar pelo texto
+  document.querySelectorAll('#s-conquistas .scroll > div').forEach(function(el){
+    const txt = el.textContent.trim();
+    if(txt.includes('Bloqueadas') || txt.includes('desbloqueada')){
+      if(desbloqueadas.length > 0){
+        const n = desbloqueadas.length;
+        el.textContent = n + ' conquista'+(n>1?'s':'')+' desbloqueada'+(n>1?'s':'')+' — clique para reivindicar ✦';
+        el.style.color = 'var(--gold)';
+      } else {
+        el.textContent = 'Bloqueadas — complete missões para desbloquear';
+        el.style.color = 'var(--mut)';
+      }
+    }
+  });
+
+  // Atualizar cada conquista pelo data-cqid
+  document.querySelectorAll('.cq[data-cqid]').forEach(function(el){
+    const cqId = el.dataset.cqid;
+    if(!cqId) return;
+    const isDesbloqueada = desbloqueadas.includes(cqId);
+    const isReivindicada = reivindicadas.includes(cqId);
+
+    // Toggle classe lk (bloqueado = opacidade reduzida)
+    if(isDesbloqueada){
+      el.classList.remove('lk');
+    } else {
+      el.classList.add('lk');
+    }
+
+    // Medalha: visual desbloqueado vs bloqueado
+    const med = el.querySelector('.cmed');
+    if(med){
+      if(isDesbloqueada){ med.classList.add('cg'); med.classList.remove('cl2'); }
+      else               { med.classList.remove('cg'); med.classList.add('cl2'); }
+    }
+
+    // Botão/dot de reivindicar
+    const dot = el.querySelector('.cq-claim-dot');
+    if(isDesbloqueada && !isReivindicada){
+      if(!dot){
+        const d2 = document.createElement('div');
+        d2.className = 'cq-claim-dot';
+        d2.textContent = '✦ Reivindicar';
+        el.appendChild(d2);
+      }
+    } else {
+      if(dot) dot.remove();
+    }
+  });
+
+  updateStreakDisplay(calcStreak(data.checkins||[]));
+}
+
+function openCq(med, tt, d, xp, cqId){
+  document.getElementById('cq-med').textContent = med;
+  document.getElementById('cq-tt').textContent  = tt;
+  document.getElementById('cq-d').textContent   = d;
+  document.getElementById('cq-xp').textContent  = xp;
+  const claimBtn = document.getElementById('cq-claim-btn');
+  if(claimBtn){
+    claimBtn.dataset.cqid = cqId||'';
+    claimBtn.classList.remove('claimed');
+    claimBtn.disabled = false;
+    if(currentUser && cqId){
+      const data = getData();
+      const desblok = data.conquistasDesbloqueadas||[];
+      const reivind = data.conquistasReivindicadas||[];
+      if(desblok.includes(cqId) && !reivind.includes(cqId)){
+        claimBtn.style.display = '';
+        claimBtn.textContent = '✦ Reivindicar Recompensa';
+      } else {
+        claimBtn.style.display = 'none';
+      }
+    } else {
+      claimBtn.style.display = 'none';
+    }
+  }
+  document.getElementById('cqModal').classList.add('open');
+}
+function closeCq(){ document.getElementById('cqModal').classList.remove('open'); }
+
+function claimConquistaXP(){
+  const btn = document.getElementById('cq-claim-btn');
+  const cqId = btn ? btn.dataset.cqid : '';
+  if(!cqId||!currentUser) return;
+  const data = getData();
+  if(!data.conquistasReivindicadas) data.conquistasReivindicadas = [];
+  if(data.conquistasReivindicadas.includes(cqId)){ btn.style.display='none'; return; }
+  const cqDef = CONQUISTAS_DEF.find(function(c){ return c.id===cqId; });
+  const xpGain = cqDef ? cqDef.xp : 0;
+  data.xp = (data.xp||0) + xpGain;
+  data.conquistasReivindicadas.push(cqId);
+  saveData(data);
+  document.querySelectorAll('#totalXP').forEach(function(el){ el.textContent=data.xp; });
+  updateRank(data.xp);
+  renderConquistasState(data);
+  btn.textContent = '💎 +'+xpGain+' XP reivindicados!';
+  btn.disabled = true;
+  btn.classList.add('claimed');
+  setTimeout(function(){ btn.style.display='none'; }, 1800);
+  showToast('💎 +'+xpGain+' XP reivindicados!');
+}
+
+// ══════════════════════════════════════════
+// MAPA / PILARES — agora via updateEquilibrio
+// ══════════════════════════════════════════
+function updateMapFromCheckins(data){ updateEquilibrio(data); }
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+function showToast(msg){
+  document.querySelectorAll('.app-toast').forEach(t=>t.remove());
+  const t=document.createElement('div');
+  t.className='app-toast';
+  t.style.cssText='position:absolute;bottom:96px;left:50%;transform:translateX(-50%);background:rgba(201,169,110,0.96);color:#1a1000;font-family:Syne,sans-serif;font-size:12px;font-weight:700;padding:10px 20px;border-radius:30px;z-index:9999;letter-spacing:.05em;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,0.5);animation:slideUp .3s ease both;pointer-events:none;max-width:320px;text-align:center';
+  t.textContent=msg;
+  const shell=document.querySelector('.shell');
+  if(shell) shell.appendChild(t);
+  setTimeout(()=>t.remove(),2800);
+}
+
+// ══════════════════════════════════════════
+// CLOCK
+// ══════════════════════════════════════════
+function updateClock(){
+  const el=document.getElementById('sbTime');
+  if(el) el.textContent=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+}
+updateClock();
+setInterval(updateClock,30000);
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded', assignMissionIds);
+} else {
+  assignMissionIds();
+}
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
